@@ -6,6 +6,37 @@ MENU_NEW_GAME,New game
 MENU_QUIT,Quit
 MENU_CONTINUE,Continue
 MENU_NEW_GAME_CONFIRM,Start over? Press again (replaces your save)
+MENU_PLAY_WITH_FRIENDS,Play with friends
+UI_WATCHING,You're watching. You'll join the crew when the next day starts.
+MAP_LEAVE,Leave the game
+SUMMARY_AWARDS,Crew awards
+AWARD_BEST_FIND,"Best find: %s, worth %s"
+AWARD_BIG_SPENDER,"Big spender: %s, %s on lockers"
+AWARD_SILVER_TONGUE,"Silver tongue: %s, %s in sales"
+AWARD_FRIENDLY_FIRE,"Friendly fire: %s, outbid the crew %s times"
+LOBBY_TITLE,Play with friends
+LOBBY_NAME,Your name
+LOBBY_NAME_HINT,What your crew calls you
+LOBBY_HOST,Host a game
+LOBBY_JOIN,Join
+LOBBY_ADDRESS_HINT,"Your friend's address, like 192.168.1.20"
+LOBBY_HINT,"Up to 4 players. On the same network, friends join with the host's address. Over the internet the host needs port 47100 open, or everyone on the same Tailscale or ZeroTier network. Steam invites come later."
+LOBBY_CREW,Crew
+LOBBY_CREW_MEMBER,Player %d: %s
+LOBBY_YOU,(you)
+LOBBY_HOSTING,You're hosting. Friends join with %s (port %d).
+LOBBY_CONNECTING,Connecting to %s...
+LOBBY_JOINED,You're in. Waiting for the host to start.
+LOBBY_START_NEW,Start a new game
+LOBBY_START_CONTINUE,Carry on the saved game
+LOBBY_BACK,Back
+LOBBY_NEED_NAME,Type a name first.
+LOBBY_NEED_ADDRESS,Type your friend's address first.
+LOBBY_CANT_HOST,Couldn't host: port %d is busy. Is the game already open?
+SESSION_CANT_CONNECT,"Couldn't reach that address. Check it, and that the host's game is open."
+SESSION_HOST_LEFT,"The host left, so the game ended."
+SESSION_FULL,That game is full: 4 players at most.
+SESSION_WRONG_VERSION,That game is on a different version. Everyone needs the same build.
 UI_CASH,Cash: %s
 UI_NET_WORTH,Net worth: %s
 UI_YOU,You
@@ -51,6 +82,7 @@ FEED_YOU_JUMP,You jump to %s!
 FEED_YOU_PASS,You pass.
 FEED_FOLD,%s drops out
 FEED_FRIENDLY_FIRE,%s outbids their own crew: %s
+FEED_YOU_FRIENDLY_FIRE,You outbid your own crew: %s
 RESULT_WON,Sold to you for %s!
 RESULT_LOST,%s takes it for %s.
 RESULT_UNSOLD,No takers. The lot goes unsold.

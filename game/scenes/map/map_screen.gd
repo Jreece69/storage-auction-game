@@ -42,13 +42,19 @@ func _ready() -> void:
 	_shop_button.pressed.connect(GameState.act.bind("skip_to_shop"))
 	_scrap_job_button.pressed.connect(GameState.act.bind("scrap_job"))
 	_save_quit_button.pressed.connect(_on_save_quit_pressed)
+	if Session.is_client():
+		_save_quit_button.text = tr("MAP_LEAVE")
 	if broke:
 		_scrap_job_button.grab_focus()
 	else:
 		_auction_button.grab_focus()
 
 
+## Saves and quits; in co-op the host's quitting ends the game for everyone,
+## and a friend just leaves.
 func _on_save_quit_pressed() -> void:
-	SaveManager.save_game(SaveManager.AUTOSAVE)
+	if Session.is_host():
+		SaveManager.save_game(SaveManager.AUTOSAVE)
+	Session.leave()
 	GameState.end_run()
 	Screens.go(Screens.TITLE)

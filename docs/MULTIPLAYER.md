@@ -66,6 +66,12 @@ one machine, a client pressed its paddle (an RPC asking to bid $105 as p2), and
 the host applied it and broadcast it to both. So the networking approach below
 works, and multiplayer tests can run automatically in CI.
 
+**Phase 2 built, 2026-10-27:** the whole graybox day plays online for 2 to 4
+players. `DayFlow` runs the day on the host; `Session` carries moves to the
+host and copies of the day back; the lobby hosts or joins by address. CI
+plays a four-player day over the network on every push
+(`tools/coop_smoke.sh`) and checks every machine ends with the same run.
+
 ## A co-op day, beat by beat
 
 | Beat | Together or apart | What happens |

@@ -7,7 +7,9 @@ extends Control
 
 @onready var _continue_button: Button = %ContinueButton
 @onready var _new_game_button: Button = %NewGameButton
+@onready var _friends_button: Button = %FriendsButton
 @onready var _quit_button: Button = %QuitButton
+@onready var _message_label: Label = %MessageLabel
 @onready var _version_label: Label = %VersionLabel
 
 var _confirming_new_game: bool = false
@@ -19,7 +21,12 @@ func _ready() -> void:
 	_continue_button.visible = SaveManager.has_slot(SaveManager.AUTOSAVE)
 	_continue_button.pressed.connect(_on_continue_pressed)
 	_new_game_button.pressed.connect(_on_new_game_pressed)
+	_friends_button.pressed.connect(Screens.go.bind(Screens.LOBBY))
 	_quit_button.pressed.connect(_on_quit_pressed)
+	# Why the last co-op session ended, if it did.
+	if not Session.last_end_reason.is_empty():
+		_message_label.text = tr(Session.last_end_reason)
+		Session.last_end_reason = ""
 	if _continue_button.visible:
 		_continue_button.grab_focus()
 	else:

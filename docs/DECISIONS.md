@@ -141,3 +141,14 @@ design and the revised roadmap are in [`MULTIPLAYER.md`](MULTIPLAYER.md).
 - **A player who drops out passes on the locker and lets their customer go; if the host drops out, the session ends for everyone.** No host migration in v1, as planned; the save is at most a day old.
 - **The host only sends to players whose connection is fully up, one by one, and doesn't relay connection news between players.** Found by the co-op smoke test: two friends leaving at once made broadcasts to the half-gone one fail.
 - **`tools/coop_smoke.sh` plays a co-op day with a host and up to three bot friends, each a separate copy of the game, over ENet on localhost, and checks they all agree.** CI runs it with a full crew of four on every push.
+
+### The lobby and co-op screens (branch `phase-2/session`)
+
+- **"Play with friends" opens a lobby: a name, then host or join by address; the host starts a new game or carries on their save.** The fewest steps that work without Steam.
+- **The lobby shows the host's own network addresses to give friends, and remembers the name and the last address joined.** Joining the same friend again is one press.
+- **Over the internet, the build's readme suggests a forwarded UDP port or Tailscale.** Both free; Steam relay removes the need later.
+- **Late joiners see a "you're watching" note until the next day starts.** Clear about why their buttons don't do anything yet.
+- **In co-op the host's save-and-quit ends the game for everyone, and a friend's button says "Leave the game".** Only the host has a save.
+- **End-of-day crew awards (best find, big spender, silver tongue, friendly fire) show beside the day's numbers when there's a crew.** Blame and bragging, from the per-member ledger; the summary records who was in the crew so a crewmate who did nothing still counts.
+- **Crewmates are shown by name; your own bids read "You".** Names come from the lobby.
+- **`tools/screenshots.sh --coop` plays a co-op day through the real screens on two copies of the game and saves what each player saw.** How this session checked the co-op screens without a monitor.

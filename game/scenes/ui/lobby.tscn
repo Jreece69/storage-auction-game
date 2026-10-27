@@ -1,0 +1,146 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/lobby.gd" id="1_lobby"]
+
+[node name="Lobby" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_lobby")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.141, 0.118, 0.106, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 96
+theme_override_constants/margin_top = 56
+theme_override_constants/margin_right = 96
+theme_override_constants/margin_bottom = 40
+
+[node name="Layout" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="Margin/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.957, 0.725, 0.329, 1)
+theme_override_font_sizes/font_size = 52
+text = "LOBBY_TITLE"
+
+[node name="NameRow" type="HBoxContainer" parent="Margin/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="NameLabel" type="Label" parent="Margin/Layout/NameRow"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+text = "LOBBY_NAME"
+
+[node name="NameEdit" type="LineEdit" parent="Margin/Layout/NameRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 56)
+layout_mode = 2
+max_length = 20
+
+[node name="ChoicePanel" type="VBoxContainer" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="HostButton" type="Button" parent="Margin/Layout/ChoicePanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 64)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "LOBBY_HOST"
+
+[node name="JoinRow" type="HBoxContainer" parent="Margin/Layout/ChoicePanel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="AddressEdit" type="LineEdit" parent="Margin/Layout/ChoicePanel/JoinRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 64)
+layout_mode = 2
+
+[node name="JoinButton" type="Button" parent="Margin/Layout/ChoicePanel/JoinRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 64)
+layout_mode = 2
+text = "LOBBY_JOIN"
+
+[node name="HintLabel" type="Label" parent="Margin/Layout/ChoicePanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.6)
+theme_override_font_sizes/font_size = 20
+text = "LOBBY_HINT"
+autowrap_mode = 3
+
+[node name="RoomPanel" type="VBoxContainer" parent="Margin/Layout"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="StatusLabel" type="Label" parent="Margin/Layout/RoomPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="CrewTitle" type="Label" parent="Margin/Layout/RoomPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.957, 0.725, 0.329, 1)
+text = "LOBBY_CREW"
+
+[node name="CrewList" type="VBoxContainer" parent="Margin/Layout/RoomPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="StartRow" type="HBoxContainer" parent="Margin/Layout/RoomPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="NewGameButton" type="Button" parent="Margin/Layout/RoomPanel/StartRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 64)
+layout_mode = 2
+text = "LOBBY_START_NEW"
+
+[node name="ContinueButton" type="Button" parent="Margin/Layout/RoomPanel/StartRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 64)
+layout_mode = 2
+text = "LOBBY_START_CONTINUE"
+
+[node name="MessageLabel" type="Label" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.42, 0.38, 1)
+autowrap_mode = 3
+
+[node name="Spacer" type="Control" parent="Margin/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BackButton" type="Button" parent="Margin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 64)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "LOBBY_BACK"

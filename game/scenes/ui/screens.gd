@@ -9,6 +9,7 @@ const MAP: StringName = &"map"
 const AUCTION: StringName = &"auction"
 const SHOP: StringName = &"shop"
 const SUMMARY: StringName = &"summary"
+const LOBBY: StringName = &"lobby"
 
 const PATHS: Dictionary[StringName, String] = {
 	TITLE: "res://scenes/ui/title_screen.tscn",
@@ -16,6 +17,7 @@ const PATHS: Dictionary[StringName, String] = {
 	AUCTION: "res://scenes/auction/auction_yard.tscn",
 	SHOP: "res://scenes/shop/shop_screen.tscn",
 	SUMMARY: "res://scenes/ui/day_summary.tscn",
+	LOBBY: "res://scenes/ui/lobby.tscn",
 }
 
 

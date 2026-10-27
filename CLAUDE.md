@@ -25,7 +25,7 @@ steps to a minimum, and decide everything that isn't reserved for him.
 |---|---|
 | 0 Setup | **Done 2026-10-27.** CI green on `main` (25 tests, boot check, Windows export); boots to the title screen |
 | 1 Core loop prototype (graybox) | **Built 2026-10-27, waiting on Jack's playtest.** A full day plays start to finish (202 tests, a full day through the app, the exported game plays a day in CI); first balance pass done (`docs/BALANCE.md`) |
-| 2 Co-op foundation (new) | **In progress.** The day runs as one shared flow that copies to other players; next, the network session and a lobby |
+| 2 Co-op foundation (new) | **Built 2026-10-27, waiting on Jack's playtest with a friend.** Host or join by address, 2 to 4 players through the whole day, crew awards; CI plays a 4-player day over the network |
 | 3 Vertical slice | Not started. Shared 3D scenes with avatars. Jack starts the Steamworks signup during this phase |
 | 4 Steam setup and demo | Not started. Steam lobbies, invites and voice |
 | 5 Content to v1.0 | Not started |
@@ -89,6 +89,8 @@ tools/lint.sh            # quick check: every script compiles, scenes load, text
 tools/export_windows.sh  # Windows build into build/windows/ (downloads templates once)
 tools/install_godot.sh   # installs the pinned Godot if needed, prints its path
 tools/screenshots.sh     # plays day 1 on a virtual display, saves every screen (Linux)
+tools/screenshots.sh --coop   # the same for a host and a friend playing together
+tools/coop_smoke.sh 4    # a host and 3 bot friends play a co-op day over ENet (CI does this)
 tools/balance_sim.sh     # bots play 200 runs of 30 days; see docs/BALANCE.md
 tools/export_smoke.sh    # exports a .pck, boots it and plays day 1 headless (CI does this)
 
@@ -222,6 +224,11 @@ written for a crew of 1 to 4, starting now, even before the networking exists.
   peek sets in `Locker`) is always rolled for all four seats.
 - **Crew composition is not saved.** The business, bank and day live in the
   host's save; friends come and go.
+- **`Session` (autoload) is the network.** The host runs the real `DayFlow`;
+  joined players hold a copy (`DayFlow.mirror`) and their `GameState.act`
+  sends the move to the host. Anything new a screen shows must be in the
+  flow's, today's or the run's `to_dict()`, or friends won't see it.
+  `tools/coop_smoke.sh` is the end-to-end check.
 
 ## Assets and licensing
 

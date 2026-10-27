@@ -204,7 +204,9 @@ func _show_bid(event: Dictionary) -> void:
 	var is_jump: bool = event["jump"]
 	var friendly_fire: bool = event["friendly_fire"]
 	_call_label.text = ""
-	if friendly_fire:
+	if friendly_fire and bidder == _member:
+		_add_feed(tr("FEED_YOU_FRIENDLY_FIRE") % amount)
+	elif friendly_fire:
 		_add_feed(tr("FEED_FRIENDLY_FIRE") % [UiKit.bidder_name(bidder), amount])
 	elif bidder == _member:
 		_add_feed((tr("FEED_YOU_JUMP") if is_jump else tr("FEED_YOU_BID")) % amount)

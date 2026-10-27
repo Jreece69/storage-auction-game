@@ -43,6 +43,26 @@ func test_rent_shows_on_the_night_it_is_paid() -> void:
 	assert_has(lines, tr("SUMMARY_RENT") % Money.format(Content.catalog.economy.rent_amount))
 
 
+func test_a_solo_day_has_no_crew_awards() -> void:
+	_end_days(1)
+	var awards: VBoxContainer = _open().get_node("%Awards")
+	assert_eq(awards.get_child_count(), 0)
+
+
+func test_a_crew_gets_awards() -> void:
+	var flow := GameState.flow
+	GameState.controller.crew = Crew.of_size(2)
+	flow.handle(Crew.HOST, "skip_to_shop")
+	GameState.controller.today.ledger.member(&"p2").sales = 30
+	flow.handle(&"p1", "close_up")
+	flow.handle(&"p2", "close_up")
+	var awards: VBoxContainer = _open().get_node("%Awards")
+	var lines: Array[String] = []
+	for line in awards.get_children():
+		lines.append((line as Label).text)
+	assert_eq(lines, [tr("SUMMARY_AWARDS"), tr("AWARD_SILVER_TONGUE") % [tr("UI_PLAYER") % 2, "$30"]] as Array[String])
+
+
 func test_next_day_goes_to_the_map() -> void:
 	_end_days(1)
 	var next_day: Button = _open().get_node("%NextDayButton")

@@ -42,27 +42,41 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.957, 0.725, 0.329, 1)
 theme_override_font_sizes/font_size = 56
 
-[node name="Rows" type="VBoxContainer" parent="Margin/Layout"]
+[node name="Columns" type="HBoxContainer" parent="Margin/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 48
+
+[node name="Day" type="VBoxContainer" parent="Margin/Layout/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="Rows" type="VBoxContainer" parent="Margin/Layout/Columns/Day"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="ProfitLabel" type="Label" parent="Margin/Layout"]
+[node name="ProfitLabel" type="Label" parent="Margin/Layout/Columns/Day"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 40
 
-[node name="BestFindLabel" type="Label" parent="Margin/Layout"]
+[node name="BestFindLabel" type="Label" parent="Margin/Layout/Columns/Day"]
 unique_name_in_owner = true
 layout_mode = 2
+autowrap_mode = 3
 
-[node name="TotalsLabel" type="Label" parent="Margin/Layout"]
+[node name="TotalsLabel" type="Label" parent="Margin/Layout/Columns/Day"]
 unique_name_in_owner = true
 layout_mode = 2
+autowrap_mode = 3
 
-[node name="Spacer" type="Control" parent="Margin/Layout"]
-custom_minimum_size = Vector2(0, 16)
+[node name="Awards" type="VBoxContainer" parent="Margin/Layout/Columns"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
 
 [node name="NextDayButton" type="Button" parent="Margin/Layout"]
 unique_name_in_owner = true

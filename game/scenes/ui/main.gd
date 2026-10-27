@@ -9,10 +9,13 @@ extends Control
 var current: Control = null
 var current_name: StringName = &""
 
+@onready var _watching_label: Label = %WatchingLabel
+
 
 func _ready() -> void:
 	EventBus.screen_requested.connect(show_screen)
 	EventBus.flow_changed.connect(_follow_the_day)
+	Session.ended.connect(_on_session_ended)
 	show_screen(Screens.TITLE)
 
 
@@ -32,8 +35,18 @@ func show_screen(screen: StringName) -> void:
 	current = packed.instantiate()
 	current_name = screen
 	add_child(current)
+	# Keep the note on top of the new screen.
+	move_child(_watching_label, -1)
 
 
 func _follow_the_day() -> void:
-	if GameState.flow != null:
-		show_screen(Screens.for_stage(GameState.flow.stage))
+	if GameState.flow == null:
+		return
+	show_screen(Screens.for_stage(GameState.flow.stage))
+	# Joined mid-day: watching until the next day starts.
+	_watching_label.visible = not GameState.flow.crew().has(GameState.local_member)
+
+
+func _on_session_ended(_reason: String) -> void:
+	_watching_label.visible = false
+	show_screen(Screens.TITLE)

@@ -259,6 +259,10 @@ func end_day() -> Dictionary:
 		today.ledger.rent = catalog.economy.rent_amount
 		_change_cash(-catalog.economy.rent_amount)
 	var summary := today.ledger.to_dict()
+	var crew_names: Array = []
+	for member in crew:
+		crew_names.append(String(member))
+	summary["crew"] = crew_names
 	summary["end_cash"] = run.cash
 	summary["net_worth"] = net_worth()
 	run.day += 1

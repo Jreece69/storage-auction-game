@@ -3,10 +3,18 @@ extends Node
 ## starting a new game never resets them. The settings menu comes with v1.0
 ## (resolution, volume, rebinding, text size, colorblind-safe rarity colors).
 
-const PATH: String = "user://settings.cfg"
+const DEFAULT_PATH: String = "user://settings.cfg"
+
+## Where settings live. Tests point this somewhere else so they never touch
+## a player's real settings (see tests/helpers/save_sandbox.gd).
+var path: String = DEFAULT_PATH
 
 ## 0.0 is silent, 1.0 is full volume.
 var master_volume: float = 1.0
+## The name shown to friends in co-op.
+var player_name: String = ""
+## The address last joined, so joining the same friend again is one press.
+var last_address: String = ""
 
 
 func _ready() -> void:
@@ -15,16 +23,22 @@ func _ready() -> void:
 
 func load_settings() -> void:
 	var config := ConfigFile.new()
-	if config.load(PATH) == OK:
+	if config.load(path) == OK:
 		var volume: float = config.get_value("audio", "master_volume", master_volume)
 		master_volume = clampf(volume, 0.0, 1.0)
+		var saved_name: String = config.get_value("co_op", "player_name", player_name)
+		player_name = saved_name
+		var saved_address: String = config.get_value("co_op", "last_address", last_address)
+		last_address = saved_address
 	apply()
 
 
 func save_settings() -> Error:
 	var config := ConfigFile.new()
 	config.set_value("audio", "master_volume", master_volume)
-	return config.save(PATH)
+	config.set_value("co_op", "player_name", player_name)
+	config.set_value("co_op", "last_address", last_address)
+	return config.save(path)
 
 
 func apply() -> void:
