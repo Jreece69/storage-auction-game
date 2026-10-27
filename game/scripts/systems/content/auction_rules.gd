@@ -20,14 +20,15 @@ extends Resource
 @export var min_opening: int = 10
 
 
-## The smallest raise allowed over [param price].
+## The smallest raise allowed over [param price]: about raise_share of it,
+## rounded to a nice amount, and never under min_raise.
 func raise_amount(price: int) -> int:
-	return maxi(min_raise, Money.ceil_nice(price * raise_share))
+	return maxi(min_raise, Money.round_nice(price * raise_share))
 
 
 ## How much a jump bid adds over [param price].
 func jump_amount(price: int) -> int:
-	return maxi(raise_amount(price) * jump_min_raises, Money.ceil_nice(price * jump_share))
+	return maxi(raise_amount(price) * jump_min_raises, Money.round_nice(price * jump_share))
 
 
 static func from_dict(data: Dictionary) -> AuctionRules:
