@@ -47,3 +47,15 @@ Jack" (see `DESIGN.md`) is never decided here; it is asked.
 - **`Weighted.pick` walks keys in alphabetical order of their text.** Sorting StringNames compares memory addresses, so picks would change between runs.
 - **Systems get `core/` (shared helpers) and `content/` (definitions, loader) folders** beside the plan's auction/loot/hauling/services/shop/customers/economy.
 - **Phase 1 tuning numbers are a first pass, all in data:** $600 starting cash, $150 weekly rent, zone 1 openers at 30% of contents value, a 400 lb / 8-slot hatchback, 4 shelves of 3 slots. The balance sim (branch 1.5) checks them against the plan's targets.
+
+### Loot and auction logic (branch `phase-1/auction`)
+
+- **The auction runs on game time as a pure state machine (`advance(seconds)` returns events).** The real-time scene, the tests and the balance sim all drive the same code; tests are exact, not timing-dependent.
+- **A rival who can't afford the next bid drops out when their reaction timer fires, not instantly.** The fold reads as a decision, and it's the hook for Phase 2's tells.
+- **When a rival's bid and the hammer land at the same instant, the bid counts.** Last-second bids are part of the drama.
+- **The minimum raise is about 5% rounded to the nearest nice amount, never under $5.** Rounding up made the raise at $105 come to $10 (10%), not about 5%.
+- **A jump bid adds a quarter of the price, and at least three minimum raises.** Big enough to read as aggressive at every price.
+- **Rivals' max bids are fixed per locker (estimate × appetite, capped by remaining budget).** Simple to reason about and to test; Phase 2's memory and grudges adjust them.
+- **The collector's bias scales with the share of the locker's value in their category.** A single toy in a garage locker shouldn't make them go wild.
+- **Items keep unique ids for the whole save (`UidCounter`).** Haul, shelves, sales and the ledger can all refer to one item safely.
+- **Unit tests use small fixed test content (`tests/helpers/fixture.gd`), not the real data.** Rebalancing the real numbers never breaks a test; separate tests check the real data loads and rolls sensibly.
