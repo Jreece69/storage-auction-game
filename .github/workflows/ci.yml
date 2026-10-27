@@ -1,0 +1,82 @@
+name: CI
+
+# Every push to any branch is tested. Pull requests show their branch's push
+# run, so a pull_request trigger would only double the minutes a private repo
+# gets each month.
+on:
+  push:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests and boot check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/checkout
+
+      - name: Restore Godot
+        uses: actions/cache@v6
+        with:
+          path: .tools/godot
+          key: godot-${{ hashFiles('tools/GODOT_VERSION') }}
+
+      - name: Import, unit tests, boot check
+        run: tools/test.sh
+
+  windows:
+    name: Windows build
+    needs: test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/checkout
+
+      - name: Restore Godot and Windows export templates
+        uses: actions/cache@v6
+        with:
+          path: |
+            .tools/godot
+            .tools/templates
+          key: godot-windows-templates-${{ hashFiles('tools/GODOT_VERSION') }}
+
+      - name: Export Windows build
+        run: tools/export_windows.sh
+
+      # Builds from main (and manual runs) are kept for testing. Branch builds
+      # are only checked to export cleanly.
+      - name: Upload build
+        if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v7
+        with:
+          name: windows-build
+          path: build/windows/
+          if-no-files-found: error
+          retention-days: 30
+
+      # The free plan has 500 MB of artifact storage and each build is about
+      # 40 MB zipped. When it fills up, uploads fail, so keep the newest three.
+      - name: Delete older builds
+        if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh api "repos/$REPO/actions/artifacts?name=windows-build&per_page=100" \
+            --jq '.artifacts | sort_by(.created_at) | reverse | .[3:] | .[].id' |
+          while read -r id; do
+            gh api -X DELETE "repos/$REPO/actions/artifacts/$id"
+            echo "Deleted old build artifact $id"
+          done
