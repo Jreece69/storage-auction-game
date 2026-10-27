@@ -2,9 +2,9 @@
   {
     "id": "finn",
     "personality": "rookie",
-    "budget": [400, 700],
+    "budget": [300, 600],
     "estimate_noise": 0.35,
-    "risk_appetite": [1.0, 1.25],
+    "risk_appetite": [0.95, 1.2],
     "jump_fold_chance": 0.55,
     "reaction_seconds": [0.4, 1.6]
   },
@@ -13,7 +13,7 @@
     "personality": "shark",
     "budget": [1200, 1800],
     "estimate_noise": 0.08,
-    "risk_appetite": [0.62, 0.72],
+    "risk_appetite": [0.55, 0.65],
     "jump_fold_chance": 0.0,
     "reaction_seconds": [1.2, 3.2]
   },
@@ -21,8 +21,8 @@
     "id": "cass",
     "personality": "collector",
     "budget": [700, 1100],
-    "estimate_noise": 0.18,
-    "risk_appetite": [0.75, 0.85],
+    "estimate_noise": 0.15,
+    "risk_appetite": [0.65, 0.75],
     "jump_fold_chance": 0.15,
     "reaction_seconds": [0.8, 2.6],
     "favorite_category": "toys",

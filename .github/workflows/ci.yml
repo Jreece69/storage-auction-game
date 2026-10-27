@@ -38,6 +38,13 @@ jobs:
       - name: Import, unit tests, boot check
         run: tools/test.sh
 
+      # A short balance sim: proves the sim still runs, and puts its report on
+      # the run's summary page. The full 200-seed run is tools/balance_sim.sh.
+      - name: Balance sim
+        run: |
+          tools/balance_sim.sh --seeds=20 --out=build/balance_report.md > /dev/null
+          cat build/balance_report.md >> "$GITHUB_STEP_SUMMARY"
+
   windows:
     name: Windows build
     needs: test
@@ -60,6 +67,9 @@ jobs:
 
       - name: Export Windows build
         run: tools/export_windows.sh
+
+      - name: Boot and play the exported game
+        run: tools/export_smoke.sh
 
       # Builds from main (and manual runs) are kept for testing. Branch builds
       # are only checked to export cleanly.

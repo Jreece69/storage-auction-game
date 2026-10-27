@@ -106,3 +106,14 @@ design and the revised roadmap are in [`MULTIPLAYER.md`](MULTIPLAYER.md).
 - **Tests that save go through `tests/helpers/save_sandbox.gd`, which points saves at `user://gut_saves/`.** Running the tests on Jack's PC must never touch his real save.
 - **Screen scripts have class names (`AuctionYard`, `ShopScreen`, ...).** Typed tests can drive them under the strict-typing rules.
 - **`tools/screenshots.sh` plays day 1 on a virtual display and saves a screenshot of every screen.** Tests can't see layout; this lets a cloud session check it.
+
+### Balance sim and the first tuning pass (branch `phase-1/balance-sim`)
+
+- **The sim's bot is a game system (`BalanceBot`) driving `RunController`, not a copy of the rules.** It measures the real game, it's unit-tested, and it can become the bot client for co-op tests.
+- **The sim compares three bots: a beginner, one that plays the rivals, and one that also minds its stock.** One bot can't tell a broken economy from a bad strategy.
+- **The bot that plays the rivals reads the shark and jump-bids the rookie.** That's the plan's hook, and the read a player learns before tells exist.
+- **Rivals keep the plan's model: they estimate from the true value with skill noise, and the opener reflects the true contents.** Tried peek-only rivals; it made bargains easy but made reading rivals worth less, and the plan gets its ×10 finds from value modifiers instead.
+- **Tuning changes (bargain hunters pay 85% to 115% of market, cooler shark and collector, poorer rookie, hatchback space 10, rent $100, 8 customers a day).** The first sim had every bot losing money; the reasons for each are in `BALANCE.md`.
+- **Locker return is measured as contents value ÷ price and as money returned ÷ spent, with and without unsold stock.** The plan's 1.2× to 1.6× target is ambiguous; all three are reported.
+- **CI runs 20 seeds of the sim on every push and posts the report on the run's summary page.** The sim can't silently break, and anyone can see the numbers.
+- **CI exports a `.pck` with the Windows preset and plays day 1 through it headless (`tools/export_smoke.sh`).** A file the export leaves out fails CI instead of the game on Jack's PC; proved by leaving out `rivals.json`.

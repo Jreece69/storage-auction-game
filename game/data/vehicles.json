@@ -1,5 +1,5 @@
 [
-  {"id": "hatchback", "max_weight": 400, "max_volume": 8, "price": 0},
+  {"id": "hatchback", "max_weight": 400, "max_volume": 10, "price": 0},
   {"id": "pickup", "max_weight": 1200, "max_volume": 16, "price": 4000},
   {"id": "box_truck", "max_weight": 4000, "max_volume": 32, "price": 15000},
   {"id": "semi", "max_weight": 20000, "max_volume": 80, "price": 60000}

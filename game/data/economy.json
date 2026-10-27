@@ -2,7 +2,7 @@
   "starting_cash": 600,
   "starting_vehicle": "hatchback",
   "starting_zone": "rusty_row",
-  "rent": {"amount": 150, "every_days": 7},
+  "rent": {"amount": 100, "every_days": 7},
   "scrap": {"per_pound": 0.1, "job_pay": 75, "job_when_cash_below": 100},
   "conditions": {
     "order": ["broken", "worn", "good", "mint"],
@@ -23,7 +23,7 @@
   "shop": {
     "shelves": 4,
     "slots_per_shelf": 3,
-    "customers_per_day": 6,
+    "customers_per_day": 8,
     "price_step": 5,
     "customers": {"bargain_hunter": 1}
   }

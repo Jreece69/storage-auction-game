@@ -24,7 +24,7 @@ steps to a minimum, and decide everything that isn't reserved for him.
 | Phase | State |
 |---|---|
 | 0 Setup | **Done 2026-10-27.** CI green on `main` (25 tests, boot check, Windows export); boots to the title screen |
-| 1 Core loop prototype (graybox) | **In progress.** All the rules are built and tested, crew-ready (152 tests); screens, balance sim and export smoke test left |
+| 1 Core loop prototype (graybox) | **Built 2026-10-27, waiting on Jack's playtest.** A full day plays start to finish (202 tests, a full day through the app, the exported game plays a day in CI); first balance pass done (`docs/BALANCE.md`) |
 | 2 Co-op foundation (new) | Not started. 2 to 4 players online (host or join by IP) through the graybox day |
 | 3 Vertical slice | Not started. Shared 3D scenes with avatars. Jack starts the Steamworks signup during this phase |
 | 4 Steam setup and demo | Not started. Steam lobbies, invites and voice |
@@ -39,12 +39,11 @@ placeholder art, and Jack has played a Windows build from the CI artifacts):
 
 - Done: data schemas plus 30 items, 3 locker themes, 1 zone, 3 rivals
   (Rookie, Shark, Collector); auction logic with unit tests (rival max bid,
-  countdown reset, budgets); loot roll; haul with a capacity check, shop with
-  4 shelves, one customer type, offer and counter; day loop, end-of-day
-  summary, save and load; rules for a crew of 1 to 4.
-- Left: graybox screens for the whole day (title, map, auction with a basic
-  reveal, haul, shop, summary); first balance sim (a bot plays 30 in-game
-  days and reports cash over time); a smoke test of the exported build.
+  countdown reset, budgets); loot roll and a basic reveal; haul with a
+  capacity check, shop with 4 shelves, one customer type, offer and counter;
+  day loop, end-of-day summary, save and load; graybox screens for the whole
+  day; first balance sim and tuning pass; rules for a crew of 1 to 4.
+- Left: Jack plays the Windows build from the CI artifacts (the gate).
 
 ## Jack's working rules
 
@@ -90,6 +89,8 @@ tools/lint.sh            # quick check: every script compiles, scenes load, text
 tools/export_windows.sh  # Windows build into build/windows/ (downloads templates once)
 tools/install_godot.sh   # installs the pinned Godot if needed, prints its path
 tools/screenshots.sh     # plays day 1 on a virtual display, saves every screen (Linux)
+tools/balance_sim.sh     # bots play 200 runs of 30 days; see docs/BALANCE.md
+tools/export_smoke.sh    # exports a .pck, boots it and plays day 1 headless (CI does this)
 
 # One test file, or tests whose name contains some text:
 tools/gut.sh -gselect=test_rng
