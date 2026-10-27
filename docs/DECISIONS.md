@@ -89,3 +89,20 @@ design and the revised roadmap are in [`MULTIPLAYER.md`](MULTIPLAYER.md).
 - **Four peek sets are always rolled, whatever the crew size.** A seed gives the same lockers solo or in a crew of four.
 - **Wins, spending, sales and finds are credited to the member who made them (`MemberLedger`).** End-of-day awards and blame need per-player numbers.
 - **Crew composition isn't saved.** Friends come and go between sessions; the business and its bank carry on in the host's save.
+
+### Graybox screens (branch `phase-1/screens`)
+
+- **One app shell (`main.tscn`) shows one screen at a time; screens ask to move on with `Screens.go()` through EventBus.** Screens never load each other, so each can be tested alone.
+- **The auction screen draws only what the auction reports (bid, call, fold, sold).** In co-op the same screen can draw the events the host broadcasts.
+- **The peek shows item names and rarity, not condition or value.** Those come out at the reveal; the price guide and appraisal tools add more later.
+- **Once the whole crew has passed, the rivals finish the auction at 4× speed.** Nobody wants to watch a locker they've given up on.
+- **The reveal brings items out one at a time, about two a second, with a "Show it all" button.** A basic version of the jackpot moment; the loud one comes with the vertical slice.
+- **The van starts loaded with the best value that fits; the player can change it.** One click for most lockers, full control when it matters.
+- **Shelving puts an item on the first shelf with room, at the suggested price; tags move in the data's $5 steps.** The fewest presses that still let the player price things.
+- **A counter-offer starts halfway between the customer's offer and the tag, and can't go above the tag.** A sensible default that's one press away.
+- **Customers come one at a time.** Co-op adds several at once (see `MULTIPLAYER.md`).
+- **The game writes the save when the shop closes and when the window closes.** Both write the start-of-day snapshot, so a crash or a quit costs at most the day in progress.
+- **New game asks to be pressed twice when there's a save.** A new run replaces the old save, which shouldn't happen by accident.
+- **Tests that save go through `tests/helpers/save_sandbox.gd`, which points saves at `user://gut_saves/`.** Running the tests on Jack's PC must never touch his real save.
+- **Screen scripts have class names (`AuctionYard`, `ShopScreen`, ...).** Typed tests can drive them under the strict-typing rules.
+- **`tools/screenshots.sh` plays day 1 on a virtual display and saves a screenshot of every screen.** Tests can't see layout; this lets a cloud session check it.

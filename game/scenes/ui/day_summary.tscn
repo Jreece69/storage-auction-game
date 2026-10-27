@@ -1,0 +1,76 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/day_summary.gd" id="1_summary"]
+
+[node name="DaySummary" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_summary")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.141, 0.118, 0.106, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 96
+theme_override_constants/margin_top = 56
+theme_override_constants/margin_right = 96
+theme_override_constants/margin_bottom = 48
+
+[node name="Layout" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.957, 0.725, 0.329, 1)
+theme_override_font_sizes/font_size = 56
+
+[node name="Rows" type="VBoxContainer" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ProfitLabel" type="Label" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+
+[node name="BestFindLabel" type="Label" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TotalsLabel" type="Label" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Spacer" type="Control" parent="Margin/Layout"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="NextDayButton" type="Button" parent="Margin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+
+[node name="SaveQuitButton" type="Button" parent="Margin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+text = "SUMMARY_SAVE_QUIT"

@@ -1,0 +1,215 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/shop/shop_screen.gd" id="1_shop"]
+
+[node name="ShopScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_shop")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.157, 0.133, 0.114, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 64
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 64
+theme_override_constants/margin_bottom = 32
+
+[node name="Layout" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Margin/Layout"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="Margin/Layout/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.957, 0.725, 0.329, 1)
+theme_override_font_sizes/font_size = 40
+
+[node name="CashLabel" type="Label" parent="Margin/Layout/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="StockPanel" type="HBoxContainer" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 32
+
+[node name="BackRoom" type="VBoxContainer" parent="Margin/Layout/StockPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BackRoomTitle" type="Label" parent="Margin/Layout/StockPanel/BackRoom"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.957, 0.725, 0.329, 1)
+text = "SHOP_BACK_ROOM"
+
+[node name="BackRoomScroll" type="ScrollContainer" parent="Margin/Layout/StockPanel/BackRoom"]
+layout_mode = 2
+size_flags_vertical = 3
+follow_focus = true
+horizontal_scroll_mode = 0
+
+[node name="BackRoomItems" type="VBoxContainer" parent="Margin/Layout/StockPanel/BackRoom/BackRoomScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="Shelves" type="VBoxContainer" parent="Margin/Layout/StockPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ShelvesTitle" type="Label" parent="Margin/Layout/StockPanel/Shelves"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.957, 0.725, 0.329, 1)
+text = "SHOP_SHELVES"
+
+[node name="ShelvesScroll" type="ScrollContainer" parent="Margin/Layout/StockPanel/Shelves"]
+layout_mode = 2
+size_flags_vertical = 3
+follow_focus = true
+horizontal_scroll_mode = 0
+
+[node name="ShelfList" type="VBoxContainer" parent="Margin/Layout/StockPanel/Shelves/ShelvesScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="CustomerPanel" type="VBoxContainer" parent="Margin/Layout"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="CustomerLabel" type="Label" parent="Margin/Layout/CustomerPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="OfferLabel" type="Label" parent="Margin/Layout/CustomerPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+autowrap_mode = 3
+
+[node name="PatienceLabel" type="Label" parent="Margin/Layout/CustomerPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.7)
+theme_override_font_sizes/font_size = 22
+
+[node name="CounterRow" type="HBoxContainer" parent="Margin/Layout/CustomerPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="LowerButton" type="Button" parent="Margin/Layout/CustomerPanel/CounterRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 64)
+layout_mode = 2
+
+[node name="CounterButton" type="Button" parent="Margin/Layout/CustomerPanel/CounterRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 64)
+layout_mode = 2
+
+[node name="HigherButton" type="Button" parent="Margin/Layout/CustomerPanel/CounterRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 64)
+layout_mode = 2
+
+[node name="DealRow" type="HBoxContainer" parent="Margin/Layout/CustomerPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="AcceptButton" type="Button" parent="Margin/Layout/CustomerPanel/DealRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 64)
+layout_mode = 2
+
+[node name="DeclineButton" type="Button" parent="Margin/Layout/CustomerPanel/DealRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 64)
+layout_mode = 2
+text = "SHOP_DECLINE"
+
+[node name="OutcomeLabel" type="Label" parent="Margin/Layout/CustomerPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.957, 0.725, 0.329, 1)
+theme_override_font_sizes/font_size = 32
+autowrap_mode = 3
+
+[node name="AfterRow" type="HBoxContainer" parent="Margin/Layout/CustomerPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="NextCustomerButton" type="Button" parent="Margin/Layout/CustomerPanel/AfterRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 64)
+layout_mode = 2
+text = "SHOP_NEXT_CUSTOMER"
+
+[node name="RestockButton" type="Button" parent="Margin/Layout/CustomerPanel/AfterRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 64)
+layout_mode = 2
+text = "SHOP_RESTOCK"
+
+[node name="HintLabel" type="Label" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.7)
+theme_override_font_sizes/font_size = 22
+autowrap_mode = 3
+
+[node name="Footer" type="HBoxContainer" parent="Margin/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="OpenDoorsButton" type="Button" parent="Margin/Layout/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 64)
+layout_mode = 2
+text = "SHOP_OPEN_DOORS"
+
+[node name="CloseUpButton" type="Button" parent="Margin/Layout/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 64)
+layout_mode = 2
+text = "SHOP_CLOSE_UP"
+
+[node name="CustomersLeftLabel" type="Label" parent="Margin/Layout/Footer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 0.7)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 2
+vertical_alignment = 1

@@ -49,6 +49,13 @@ horizontal_alignment = 1
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 
+[node name="ContinueButton" type="Button" parent="Center/Menu"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "MENU_CONTINUE"
+
 [node name="NewGameButton" type="Button" parent="Center/Menu"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(360, 64)
@@ -62,12 +69,6 @@ custom_minimum_size = Vector2(360, 64)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "MENU_QUIT"
-
-[node name="StatusLabel" type="Label" parent="Center/Menu"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-horizontal_alignment = 1
 
 [node name="VersionLabel" type="Label" parent="."]
 unique_name_in_owner = true

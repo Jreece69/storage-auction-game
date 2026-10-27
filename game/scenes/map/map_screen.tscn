@@ -1,0 +1,96 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/map/map_screen.gd" id="1_map"]
+
+[node name="MapScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_map")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.141, 0.118, 0.106, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 96
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 96
+theme_override_constants/margin_bottom = 48
+
+[node name="Layout" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="DayLabel" type="Label" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.957, 0.725, 0.329, 1)
+theme_override_font_sizes/font_size = 56
+
+[node name="CashLabel" type="Label" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="NetWorthLabel" type="Label" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="RentLabel" type="Label" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.7)
+theme_override_font_sizes/font_size = 22
+
+[node name="Spacer" type="Control" parent="Margin/Layout"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+
+[node name="AuctionButton" type="Button" parent="Margin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+
+[node name="ShopButton" type="Button" parent="Margin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+text = "MAP_SKIP_TO_SHOP"
+
+[node name="ScrapJobButton" type="Button" parent="Margin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+
+[node name="BrokeHintLabel" type="Label" parent="Margin/Layout"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "MAP_BROKE_HINT"
+autowrap_mode = 3
+
+[node name="SaveQuitButton" type="Button" parent="Margin/Layout"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+text = "MAP_SAVE_QUIT"
+
+[node name="SaveNoteLabel" type="Label" parent="Margin/Layout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.5)
+theme_override_font_sizes/font_size = 20
+text = "MAP_SAVE_NOTE"

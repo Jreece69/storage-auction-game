@@ -1,6 +1,6 @@
 extends Node
 ## Save games: one JSON file per slot in user://saves/. Steam Auto-Cloud will
-## sync that folder (Phase 3).
+## sync that folder once the game is on Steam.
 ##
 ## A save holds the run as it stood at the start of the current day, plus the
 ## random streams, so loading always resumes at the start of a day and the
@@ -11,9 +11,13 @@ extends Node
 ## load.
 
 const SAVE_VERSION: int = 2
-const SAVE_DIR: String = "user://saves/"
+const DEFAULT_SAVE_DIR: String = "user://saves/"
 ## The slot the game saves to at the start of each day.
 const AUTOSAVE: String = "autosave"
+
+## Where slots live. Tests point this somewhere else so they never touch a
+## real save (see tests/helpers/save_sandbox.gd).
+var save_dir: String = DEFAULT_SAVE_DIR
 
 
 ## Writes the run in progress to [param slot].
@@ -54,14 +58,14 @@ func delete_slot(slot: String) -> Error:
 
 
 func slot_path(slot: String) -> String:
-	return SAVE_DIR + slot.validate_filename() + ".json"
+	return save_dir + slot.validate_filename() + ".json"
 
 
 ## Writes [param payload] to [param slot], stamped with SAVE_VERSION.
 ## The file is written in full before it replaces the old one, so a crash
 ## mid-save never leaves a half-written slot.
 func write_slot(slot: String, payload: Dictionary) -> Error:
-	var err := DirAccess.make_dir_recursive_absolute(SAVE_DIR)
+	var err := DirAccess.make_dir_recursive_absolute(save_dir)
 	if err != OK:
 		return err
 	var data := payload.duplicate(true)

@@ -1,7 +1,7 @@
 class_name ItemInstance
 extends RefCounted
 ## One actual item: which kind it is ([ItemDef]) plus what was rolled for it.
-## Phase 2 adds provenance and value modifiers.
+## The vertical slice adds provenance and value modifiers.
 
 var uid: int
 var def_id: StringName

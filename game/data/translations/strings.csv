@@ -2,9 +2,120 @@ keys,en
 TITLE_GAME_NAME,Storage Auction Game
 TITLE_TAGLINE,Read the room. Win the locker.
 TITLE_VERSION,Version %s
-TITLE_COMING_SOON,The first auction opens in Phase 1.
 MENU_NEW_GAME,New game
 MENU_QUIT,Quit
+MENU_CONTINUE,Continue
+MENU_NEW_GAME_CONFIRM,Start over? Press again (replaces your save)
+UI_CASH,Cash: %s
+UI_NET_WORTH,Net worth: %s
+UI_YOU,You
+UI_PLAYER,Player %d
+UI_DIRTY,"%s, dirty"
+MAP_DAY,Day %d
+MAP_RENT_TONIGHT,Rent of %s is due tonight.
+MAP_RENT_TOMORROW,Rent of %s is due tomorrow night.
+MAP_RENT_IN,Rent of %s is due in %d days.
+MAP_GO_AUCTION,Go to %s (%d lockers up today)
+MAP_SKIP_TO_SHOP,Skip the auctions and open the shop
+MAP_SCRAP_JOB,Work a scrap job instead (%s)
+MAP_BROKE_HINT,"Money's tight. A scrap job pays a little, but the rivals get today's lockers."
+MAP_SAVE_QUIT,Save and quit to the title
+MAP_SAVE_NOTE,The game saves at the start of each day.
+AUCTION_LOT,Lot %d of %d: %s
+AUCTION_PEEK_TITLE,Through the open door you can make out:
+AUCTION_PEEK_TIMER,Bidding starts in %d s
+PEEK_ITEM,%s (%s)
+AUCTION_HIDDEN,...plus %d more under tarps and in boxes.
+AUCTION_OPENS_AT,The auctioneer will open at %s.
+AUCTION_OPENS_AT_BROKE,"The auctioneer will open at %s, more than you have."
+AUCTION_START,Start bidding now
+AUCTION_SKIP,Sit this one out
+AUCTION_PRICE_OPENING,Opening at %s
+AUCTION_NO_BIDS,No bids yet
+AUCTION_HIGH_BIDDER,High bid: %s
+AUCTION_GOING_ONCE,Going once...
+AUCTION_GOING_TWICE,Going twice...
+AUCTION_SOLD,Sold!
+AUCTION_UNSOLD,No sale.
+AUCTION_RIVAL_IN,"%s, the %s: still in"
+AUCTION_RIVAL_OUT,"%s, the %s: out"
+AUCTION_RAISE,Raise to %s
+AUCTION_JUMP,Jump to %s
+AUCTION_PASS,Pass
+FEED_BID,%s bids %s
+FEED_JUMP,%s jumps to %s!
+FEED_YOU_BID,You bid %s
+FEED_YOU_JUMP,You jump to %s!
+FEED_YOU_PASS,You pass.
+FEED_FOLD,%s drops out
+FEED_FRIENDLY_FIRE,%s outbids their own crew: %s
+RESULT_WON,Sold to you for %s!
+RESULT_LOST,%s takes it for %s.
+RESULT_UNSOLD,No takers. The lot goes unsold.
+RESULT_OPEN,Open it up
+RESULT_NEXT,Next locker
+REVEAL_TITLE,What's inside:
+REVEAL_ITEM,%s (%s): worth %s
+REVEAL_TOTAL,"Worth about %s in all, junk included. You paid %s."
+REVEAL_SKIP,Show it all
+HAUL_LOAD,Load the %s
+HAUL_TITLE,Load the %s
+HAUL_CAPACITY,Weight %d of %d lb · Space %d of %d slots
+HAUL_SCRAP,Anything left behind goes for scrap with the junk: %s
+HAUL_ITEM,%s (%s): %s · %d lb · size %d
+HAUL_HINT,Tick what goes in the van. The best value that fits is already ticked.
+HAUL_NO_FIT,That won't fit. Take something else out first.
+HAUL_DRIVE,Drive it home
+AUCTION_MORNING_TITLE,Morning's over
+AUCTION_MORNING_DONE,That's every locker for today.
+AUCTION_MORNING_COUNT,You won %d of %d lockers.
+AUCTION_TO_SHOP,Open the shop
+SHOP_TITLE,Day %d: the shop
+SHOP_BACK_ROOM,Back room
+SHOP_SHELVES,Shelves
+SHOP_EMPTY_BACK_ROOM,The back room is empty.
+SHOP_BACK_ROOM_ITEM,"%s (%s), worth %s, size %d"
+SHOP_PUT_ON_SHELF,Put on a shelf
+SHOP_NO_ROOM,No shelf has room for that. Take something down first.
+SHOP_SHELF,Shelf %d: %d of %d slots free
+SHOP_TAGGED,%s: tagged %s (worth %s)
+SHOP_CHEAPER,-%s
+SHOP_DEARER,+%s
+SHOP_TAKE_DOWN,Take down
+SHOP_OPEN_DOORS,Open the doors
+SHOP_CLOSE_UP,Close up for the day
+SHOP_CUSTOMERS_LEFT,Customers still to come today: %d
+SHOP_CUSTOMER,"In walks a customer (%s). They pick up the %s, tagged %s."
+SHOP_OFFER,"""I'll give you %s for it."""
+SHOP_PATIENCE,Patience left: %d
+SHOP_PATIENCE_LAST,This is their last offer.
+SHOP_ACCEPT,Take %s
+SHOP_COUNTER,Counter at %s
+SHOP_DECLINE,No deal
+SHOP_SOLD,Sold for %s!
+SHOP_DEAL,Deal at %s!
+SHOP_RAISED,They come up to %s.
+SHOP_LOST_PATIENCE,They've had enough and walk out.
+SHOP_DECLINED,They shrug and leave.
+SHOP_BROWSING,They look it over and put it back. Just browsing.
+SHOP_TOO_PRICEY,"They see the tag, wince and walk off."
+SHOP_NEXT_CUSTOMER,Next customer
+SHOP_RESTOCK,Restock the shelves
+SHOP_NO_CUSTOMERS_LEFT,That's everyone for today.
+SHOP_NOTHING_TO_SELL,"Nothing on the shelves, so nobody's buying."
+SUMMARY_TITLE,End of day %d
+SUMMARY_LOCKERS,Lockers won: %d of %d
+SUMMARY_SPENT,Spent on lockers: %s
+SUMMARY_SALES,Sales: %s (items sold: %d)
+SUMMARY_SCRAP,Scrap: %s
+SUMMARY_SCRAP_JOB,Scrap job: %s
+SUMMARY_RENT,Rent: %s
+SUMMARY_PROFIT,Profit: %s
+SUMMARY_NO_FIND,No finds today.
+SUMMARY_BEST_FIND,"Best find: %s, worth %s"
+SUMMARY_TOTALS,Cash %s · Net worth %s
+SUMMARY_NEXT_DAY,Start day %d
+SUMMARY_SAVE_QUIT,Save and quit to the title
 ZONE_RUSTY_ROW,Rusty Row Storage
 THEME_ATTIC_CLEAROUT,Attic Clear-out
 THEME_GAMERS_DEN,Gamer's Den

@@ -89,6 +89,7 @@ tools/test.sh            # import + every GUT test + boot check (what CI runs)
 tools/lint.sh            # quick check: every script compiles, scenes load, text uses keys
 tools/export_windows.sh  # Windows build into build/windows/ (downloads templates once)
 tools/install_godot.sh   # installs the pinned Godot if needed, prints its path
+tools/screenshots.sh     # plays day 1 on a virtual display, saves every screen (Linux)
 
 # One test file, or tests whose name contains some text:
 tools/gut.sh -gselect=test_rng
@@ -131,7 +132,9 @@ page under Actions.
   `PascalCase` classes and nodes.
 - **Layout:**
   - `game/scenes/<area>/`: each `.tscn` with its script beside it. Scenes
-    only display state and forward input.
+    only display state and forward input. `main.tscn` is the app shell: it
+    shows one screen at a time, and a screen moves on with `Screens.go()`
+    (never by loading another screen itself).
   - `game/scripts/autoload/`: the six singletons `Content`, `EventBus`, `Rng`,
     `Settings`, `GameState`, `SaveManager`. Autoload scripts have no
     `class_name` (it would clash with the singleton name).
@@ -179,6 +182,12 @@ page under Actions.
   engine error or `push_error`; when an error is the expected outcome, assert
   it with `assert_push_error("text")`. `test_project_integrity.gd` checks that
   every script compiles, every scene instantiates, and scene text uses keys.
+  A test file that saves calls `SaveSandbox.enter()` in `before_all()` and
+  `leave()` in `after_all()` (`tests/helpers/save_sandbox.gd`), so tests never
+  touch a real save. Scene tests press buttons with `pressed.emit()` only when
+  they're showing and enabled, and drive time with the screen's `tick()`.
+  After adding a `class_name`, run `tools/lint.sh` (it re-imports) before
+  `tools/gut.sh`, or the new name isn't found.
 - **Exports** leave out `tests/` and `addons/gut/` (`export_presets.cfg`). The
   Windows build is a single `.exe` with the game packed inside.
 

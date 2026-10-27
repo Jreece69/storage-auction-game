@@ -3,15 +3,16 @@ extends GutTest
 ## a script that no longer compiles, a scene that won't load, or UI text that
 ## skips the translation table.
 
-const TITLE_SCENE_PATH: String = "res://scenes/ui/title_screen.tscn"
+const MAIN_SCENE_PATH: String = "res://scenes/ui/main.tscn"
 const TRANSLATIONS_CSV: String = "res://data/translations/strings.csv"
 
 
-func test_main_scene_is_the_title_screen() -> void:
+func test_main_scene_is_the_app_shell() -> void:
+	# The shell shows the title first, then swaps screens as the day goes.
 	var main_scene := str(ProjectSettings.get_setting("application/run/main_scene"))
 	if main_scene.begins_with("uid://"):
 		main_scene = ResourceUID.get_id_path(ResourceUID.text_to_id(main_scene))
-	assert_eq(main_scene, TITLE_SCENE_PATH)
+	assert_eq(main_scene, MAIN_SCENE_PATH)
 
 
 func test_every_script_compiles() -> void:

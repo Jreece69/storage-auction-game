@@ -28,7 +28,7 @@
         "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}
       },
       "sets": {
-        "description": "Collection set tags (Phase 4)",
+        "description": "Collection set tags (for collections, a v1.0 feature)",
         "type": "array",
         "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}
       }

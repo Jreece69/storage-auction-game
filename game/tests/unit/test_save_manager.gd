@@ -2,7 +2,16 @@ extends GutTest
 ## Saves hold the run as it stood at the start of the day, round-trip
 ## exactly, replay the same day, upgrade old versions, and fail safely.
 
+const SaveSandbox := preload("res://tests/helpers/save_sandbox.gd")
 const SLOT: String = "gut_test_slot"
+
+
+func before_all() -> void:
+	SaveSandbox.enter()
+
+
+func after_all() -> void:
+	SaveSandbox.leave()
 
 
 func after_each() -> void:
@@ -94,7 +103,7 @@ func _write_raw(data: Dictionary) -> void:
 
 
 func _write_text(text: String) -> void:
-	DirAccess.make_dir_recursive_absolute(SaveManager.SAVE_DIR)
+	DirAccess.make_dir_recursive_absolute(SaveManager.save_dir)
 	var file := FileAccess.open(SaveManager.slot_path(SLOT), FileAccess.WRITE)
 	file.store_string(text)
 	file.close()

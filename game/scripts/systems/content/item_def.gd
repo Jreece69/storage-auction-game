@@ -19,7 +19,7 @@ const RARITIES: Array[StringName] = [&"common", &"uncommon", &"rare", &"epic", &
 ## The worst and best condition this item can turn up in.
 @export var condition_min: StringName
 @export var condition_max: StringName
-## Collection sets this item belongs to (used from Phase 4).
+## Collection sets this item belongs to (for collections, a v1.0 feature).
 @export var sets: Array[StringName] = []
 
 var name_key: String:

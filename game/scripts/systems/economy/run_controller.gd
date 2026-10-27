@@ -29,6 +29,8 @@ var crew: Array[StringName] = Crew.of_size(1)
 ## The run and the random streams as they stood when the current day began.
 ## Saves write this, so loading always resumes at the start of a day.
 var day_start_snapshot: Dictionary = {}
+## The summary end_day() returned last, for the end-of-day screen.
+var last_summary: Dictionary = {}
 
 var _rng: RngStreams
 var _roller: LootRoller
@@ -257,6 +259,7 @@ func end_day() -> Dictionary:
 	summary["net_worth"] = net_worth()
 	run.day += 1
 	summary["rent_due_in"] = days_until_rent()
+	last_summary = summary
 	_take_snapshot()
 	day_ended.emit(summary)
 	return summary

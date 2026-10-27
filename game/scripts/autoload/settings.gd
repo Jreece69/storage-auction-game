@@ -1,6 +1,6 @@
 extends Node
 ## Player preferences, stored apart from save games in user://settings.cfg so
-## starting a new game never resets them. Phase 4 adds the settings menu
+## starting a new game never resets them. The settings menu comes with v1.0
 ## (resolution, volume, rebinding, text size, colorblind-safe rarity colors).
 
 const PATH: String = "user://settings.cfg"

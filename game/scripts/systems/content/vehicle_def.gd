@@ -8,7 +8,7 @@ extends Resource
 @export var max_weight: int
 ## Slots, the same unit as item size and shelf space.
 @export var max_volume: int
-## Upgrade price in dollars (upgrades arrive in Phase 2).
+## Upgrade price in dollars (vehicle upgrades come with the upgrade tree).
 @export var price: int
 
 var name_key: String:
