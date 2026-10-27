@@ -1,7 +1,7 @@
 extends GutTest
-## The whole app as a player runs it: the shell starts on the title and
-## swaps screens as the day moves on, from the map through the auction and
-## the shop to the next morning.
+## The whole app as a player runs it: the shell starts on the title, then
+## follows the day, showing the screen for each stage, from the map through
+## the auction and the shop to the next morning.
 
 const SaveSandbox := preload("res://tests/helpers/save_sandbox.gd")
 const MAIN_SCENE: PackedScene = preload("res://scenes/ui/main.tscn")
@@ -33,12 +33,17 @@ func test_the_app_starts_on_the_title() -> void:
 	_assert_showing(Screens.TITLE)
 
 
-func test_a_screen_request_swaps_the_screen() -> void:
+func test_a_new_run_shows_the_map() -> void:
 	var title := app.current
 	GameState.new_game(1)
-	Screens.go(Screens.MAP)
 	_assert_showing(Screens.MAP)
 	assert_true(title.is_queued_for_deletion(), "the old screen goes")
+
+
+func test_a_screen_request_swaps_the_screen() -> void:
+	GameState.new_game(1)
+	Screens.go(Screens.TITLE)
+	_assert_showing(Screens.TITLE)
 
 
 func test_a_full_day_through_the_app() -> void:
@@ -46,31 +51,31 @@ func test_a_full_day_through_the_app() -> void:
 	# game button is covered in test_title_screen.
 	GameState.new_game(2026)
 	var controller := GameState.controller
+	var flow := GameState.flow
 	controller.run.cash = 100000
-	Screens.go(Screens.MAP)
+	_assert_showing(Screens.MAP)
 	_press("%AuctionButton")
 	_assert_showing(Screens.AUCTION)
 
 	# Win the first locker, unload it into the back room, sit out the rest.
-	var yard := app.current as AuctionYard
 	_press("%StartButton")
 	for i in MAX_TICKS:
-		if yard.stage != AuctionYard.Stage.BIDDING:
+		if flow.stage != DayFlow.Stage.BIDDING:
 			break
 		if not _button("%RaiseButton").disabled:
 			_press("%RaiseButton")
-		yard.tick(0.25)
-	assert_true(controller.crew.has(controller.today.results[1]), "won the first locker")
+		flow.tick(0.25)
+	assert_true(flow.crew_won(), "won the first locker")
 	_press("%ResultButton")
-	yard.reveal_all()
+	_press("%RevealSkipButton")
 	_press("%LoadButton")
 	_press("%DriveButton")
 	for lot in controller.today.lockers.size():
-		if yard.stage == AuctionYard.Stage.DONE:
+		if flow.stage == DayFlow.Stage.MORNING_DONE:
 			break
 		_press("%SkipButton")
 		_press("%ResultButton")
-	assert_eq(yard.stage, AuctionYard.Stage.DONE)
+	assert_eq(flow.stage, DayFlow.Stage.MORNING_DONE)
 	assert_gt(controller.run.items.size(), 0, "the haul made it home")
 	_press("%ToShopButton")
 	_assert_showing(Screens.SHOP)
@@ -80,8 +85,8 @@ func test_a_full_day_through_the_app() -> void:
 	for uid in controller.run.backroom_uids():
 		shop.shelve(uid)
 	_press("%OpenDoorsButton")
-	for i in controller.catalog.economy.shop.customers_per_day:
-		if shop.customer != null and shop.customer.is_offering():
+	for i in controller.today.customers_left + 1:
+		if flow.counter_of(Crew.HOST).is_busy():
 			_press("%AcceptButton")
 		if _button("%NextCustomerButton").disabled:
 			break

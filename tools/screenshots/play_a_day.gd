@@ -21,30 +21,29 @@ func _ready() -> void:
 func _run() -> void:
 	await _shot("01_title")
 	GameState.new_game(2026)
-	Screens.go(Screens.MAP)
+	var controller := GameState.controller
+	var flow := GameState.flow
 	await _shot("02_map")
 	_press("%AuctionButton")
 	await _shot("03_peek")
-	var yard := _app.current as AuctionYard
-	var controller := GameState.controller
 	controller.run.cash = 5000
 	EventBus.cash_changed.emit(controller.run.cash)
 	_press("%StartButton")
-	yard.tick(1.4)
+	flow.tick(1.4)
 	_press("%RaiseButton")
-	yard.tick(1.0)
+	flow.tick(1.0)
 	await _shot("04_bidding")
 	for i in 5000:
-		if yard.stage != AuctionYard.Stage.BIDDING:
+		if flow.stage != DayFlow.Stage.BIDDING:
 			break
 		if not _button("%RaiseButton").disabled:
 			_press("%RaiseButton")
-		yard.tick(0.25)
+		flow.tick(0.25)
 	await _shot("05_result")
 	_press("%ResultButton")
-	yard.tick(AuctionYard.REVEAL_INTERVAL * 2.5)
+	flow.tick(DayFlow.REVEAL_INTERVAL * 2.5)
 	await _shot("06_reveal_partway")
-	yard.reveal_all()
+	_press("%RevealSkipButton")
 	await _shot("07_reveal")
 	_press("%LoadButton")
 	await _shot("08_haul")
@@ -63,8 +62,8 @@ func _run() -> void:
 	await _shot("12_shop_shelved")
 	_press("%OpenDoorsButton")
 	await _shot("13_customer")
-	for i in 6:
-		if shop.customer != null and shop.customer.is_offering():
+	for i in controller.today.customers_left + 1:
+		if flow.counter_of(Crew.HOST).is_busy():
 			_press("%AcceptButton")
 			await _shot("14_sold_%d" % i)
 		if _button("%NextCustomerButton").disabled:

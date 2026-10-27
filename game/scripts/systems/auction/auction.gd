@@ -163,6 +163,74 @@ func run_to_end() -> Array[Dictionary]:
 	return events
 
 
+## The auction as plain data, for showing it on other players' screens. The
+## rivals' estimates and max bids stay on the host unless [param secrets] is
+## set, since nobody's screen should be able to show them.
+func to_dict(secrets: bool = false) -> Dictionary:
+	var bidder_data: Array = []
+	for bidder in bidders:
+		var entry := {"id": String(bidder.id), "folded": bidder.folded}
+		if secrets:
+			entry["estimate"] = bidder.estimate
+			entry["max_bid"] = bidder.max_bid
+			entry["timer"] = bidder.timer
+		bidder_data.append(entry)
+	var fire: Dictionary = {}
+	for member: StringName in friendly_fire:
+		fire[String(member)] = friendly_fire[member]
+	return {
+		"state": state,
+		"opening_price": opening_price,
+		"price": price,
+		"high_bidder": String(high_bidder),
+		"countdown": countdown,
+		"crew": _strings(crew),
+		"crew_cash": crew_cash,
+		"crew_out": _strings(crew_out),
+		"friendly_fire": fire,
+		"bid_count": bid_count,
+		"calls_made": _calls_made,
+		"bidders": bidder_data,
+	}
+
+
+## Rebuilds an auction from [method to_dict]. Without the secrets the copy
+## can be shown but not run. Building it draws from [param rng], so give a
+## copy its own generator, never a game stream.
+static func from_dict(data: Dictionary, rules: AuctionRules, catalog: Catalog, rng: RandomNumberGenerator) -> Auction:
+	var copy_bidders: Array[RivalBidder] = []
+	var bidder_data: Array = data.get("bidders", [])
+	for entry: Dictionary in bidder_data:
+		var bidder := RivalBidder.new(catalog.rivals[JsonValue.as_name(entry["id"])], JsonValue.as_int(entry.get("max_bid", 0)))
+		bidder.estimate = JsonValue.as_int(entry.get("estimate", 0))
+		var folded: bool = entry.get("folded", false)
+		bidder.folded = folded
+		copy_bidders.append(bidder)
+	var copy := Auction.new(rules, JsonValue.as_int(data["opening_price"]), copy_bidders, JsonValue.as_names(data.get("crew", [])), JsonValue.as_int(data.get("crew_cash", 0)), rng)
+	copy.state = JsonValue.as_int(data.get("state", State.OPEN)) as State
+	copy.price = JsonValue.as_int(data.get("price", 0))
+	copy.high_bidder = JsonValue.as_name(data.get("high_bidder", ""))
+	copy.countdown = JsonValue.as_float(data.get("countdown", rules.countdown_seconds))
+	copy.crew_out = JsonValue.as_names(data.get("crew_out", []))
+	var fire: Dictionary = data.get("friendly_fire", {})
+	for member: Variant in fire:
+		copy.friendly_fire[JsonValue.as_name(member)] = JsonValue.as_int(fire[member])
+	copy.bid_count = JsonValue.as_int(data.get("bid_count", 0))
+	copy._calls_made = JsonValue.as_int(data.get("calls_made", 0))
+	# The constructor scheduled the rivals; put the copied timers back.
+	for i in copy_bidders.size():
+		var entry: Dictionary = bidder_data[i]
+		copy_bidders[i].timer = JsonValue.as_float(entry.get("timer", -1.0))
+	return copy
+
+
+static func _strings(names: Array[StringName]) -> Array:
+	var out: Array = []
+	for each in names:
+		out.append(String(each))
+	return out
+
+
 func _place_bid(who: StringName, amount: int, is_jump: bool, events: Array[Dictionary]) -> void:
 	var over_crewmate := is_crew(who) and is_crew(high_bidder)
 	if over_crewmate:

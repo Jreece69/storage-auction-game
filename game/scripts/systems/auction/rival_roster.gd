@@ -55,6 +55,27 @@ func budget_of(rival_id: StringName) -> int:
 	return budgets[rival_id] if budgets.has(rival_id) else 0
 
 
+## The rivals and their budgets as plain data, for sending to other players.
+func to_dict() -> Dictionary:
+	var ids: Array = []
+	var left: Dictionary = {}
+	for def in rivals:
+		ids.append(String(def.id))
+		left[String(def.id)] = budget_of(def.id)
+	return {"rivals": ids, "budgets": left}
+
+
+static func from_dict(data: Dictionary, catalog: Catalog) -> RivalRoster:
+	var roster := RivalRoster.new()
+	var ids: Array = data.get("rivals", [])
+	var left: Dictionary = data.get("budgets", {})
+	for rival_id: Variant in ids:
+		var def: RivalDef = catalog.rivals[JsonValue.as_name(rival_id)]
+		roster.rivals.append(def)
+		roster.budgets[def.id] = JsonValue.as_int(left.get(String(def.id), 0))
+	return roster
+
+
 ## Charges a rival for a locker they won.
 func spend(rival_id: StringName, amount: int) -> void:
 	budgets[rival_id] = maxi(0, budget_of(rival_id) - amount)

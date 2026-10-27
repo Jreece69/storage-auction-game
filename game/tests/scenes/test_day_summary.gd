@@ -47,7 +47,8 @@ func test_next_day_goes_to_the_map() -> void:
 	_end_days(1)
 	var next_day: Button = _open().get_node("%NextDayButton")
 	next_day.pressed.emit()
-	assert_signal_emitted_with_parameters(EventBus, "screen_requested", [Screens.MAP])
+	assert_eq(GameState.flow.stage, DayFlow.Stage.MAP)
+	assert_eq(GameState.controller.today.day, 2)
 
 
 func test_save_and_quit_keeps_tomorrow() -> void:
@@ -60,13 +61,17 @@ func test_save_and_quit_keeps_tomorrow() -> void:
 	assert_signal_emitted_with_parameters(EventBus, "screen_requested", [Screens.TITLE])
 
 
-## Plays [param days] empty days. Returns the last one's summary.
+## Plays [param days] empty days through the day flow, ending on the last
+## one's summary. Returns that summary.
 func _end_days(days: int) -> Dictionary:
-	var summary: Dictionary = {}
+	var flow := GameState.flow
 	for i in days:
-		GameState.controller.start_day()
-		summary = GameState.controller.end_day()
-	return summary
+		if flow.stage == DayFlow.Stage.SUMMARY:
+			assert_true(flow.handle(Crew.HOST, "next_day"))
+		assert_true(flow.handle(Crew.HOST, "skip_to_shop"))
+		assert_true(flow.handle(Crew.HOST, "close_up"))
+	assert_eq(flow.stage, DayFlow.Stage.SUMMARY)
+	return GameState.controller.last_summary
 
 
 func _open() -> Control:

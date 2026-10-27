@@ -25,7 +25,7 @@ steps to a minimum, and decide everything that isn't reserved for him.
 |---|---|
 | 0 Setup | **Done 2026-10-27.** CI green on `main` (25 tests, boot check, Windows export); boots to the title screen |
 | 1 Core loop prototype (graybox) | **Built 2026-10-27, waiting on Jack's playtest.** A full day plays start to finish (202 tests, a full day through the app, the exported game plays a day in CI); first balance pass done (`docs/BALANCE.md`) |
-| 2 Co-op foundation (new) | Not started. 2 to 4 players online (host or join by IP) through the graybox day |
+| 2 Co-op foundation (new) | **In progress.** The day runs as one shared flow that copies to other players; next, the network session and a lobby |
 | 3 Vertical slice | Not started. Shared 3D scenes with avatars. Jack starts the Steamworks signup during this phase |
 | 4 Steam setup and demo | Not started. Steam lobbies, invites and voice |
 | 5 Content to v1.0 | Not started |
@@ -209,6 +209,15 @@ written for a crew of 1 to 4, starting now, even before the networking exists.
   already does) that the host can broadcast as they are.
 - **Scenes read the local player from `GameState.local_member`** and
   `GameState.local_seat()`, never assume `p1`.
+- **`DayFlow` runs the day** (`scripts/systems/day/`): stages, clocks, votes
+  and shop counters. Screens draw it and make the local player's moves with
+  `GameState.act("raise")` and the like, never by calling `RunController`
+  themselves. The app shell shows the screen for the flow's stage. A new
+  move is a `handle()` case in `DayFlow` plus a test in `test_day_flow.gd`.
+- **Anything another player needs to see has `to_dict()`/`from_dict()`**, and
+  `test_day_flow.gd` checks that a copy built from the host's data matches the
+  host at every stage. Secrets (rival max bids, customer limits) only go into
+  a copy when asked for.
 - **Crew size never changes what a seed rolls.** Per-seat data (like the four
   peek sets in `Locker`) is always rolled for all four seats.
 - **Crew composition is not saved.** The business, bank and day live in the

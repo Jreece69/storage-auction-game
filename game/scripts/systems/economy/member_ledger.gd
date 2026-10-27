@@ -25,3 +25,13 @@ func to_dict() -> Dictionary:
 		"items_sold": items_sold,
 		"friendly_fire": friendly_fire,
 	}
+
+
+static func from_dict(data: Dictionary) -> MemberLedger:
+	var ledger := MemberLedger.new(JsonValue.as_name(data.get("member", "")))
+	ledger.lockers_won = JsonValue.as_int(data.get("lockers_won", 0))
+	ledger.spent_on_lockers = JsonValue.as_int(data.get("spent_on_lockers", 0))
+	ledger.sales = JsonValue.as_int(data.get("sales", 0))
+	ledger.items_sold = JsonValue.as_int(data.get("items_sold", 0))
+	ledger.friendly_fire = JsonValue.as_int(data.get("friendly_fire", 0))
+	return ledger

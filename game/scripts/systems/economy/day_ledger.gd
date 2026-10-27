@@ -67,6 +67,28 @@ func to_dict() -> Dictionary:
 	}
 
 
+## Rebuilds a ledger from [method to_dict]. The profit is worked out again.
+static func from_dict(data: Dictionary) -> DayLedger:
+	var ledger := DayLedger.new(JsonValue.as_int(data.get("day", 1)), JsonValue.as_int(data.get("start_cash", 0)))
+	ledger.spent_on_lockers = JsonValue.as_int(data.get("spent_on_lockers", 0))
+	ledger.lockers_won = JsonValue.as_int(data.get("lockers_won", 0))
+	ledger.lockers_lost = JsonValue.as_int(data.get("lockers_lost", 0))
+	ledger.sales = JsonValue.as_int(data.get("sales", 0))
+	ledger.items_sold = JsonValue.as_int(data.get("items_sold", 0))
+	ledger.scrap = JsonValue.as_int(data.get("scrap", 0))
+	ledger.scrap_job = JsonValue.as_int(data.get("scrap_job", 0))
+	ledger.rent = JsonValue.as_int(data.get("rent", 0))
+	ledger.best_find_def = JsonValue.as_name(data.get("best_find_def", ""))
+	ledger.best_find_value = JsonValue.as_int(data.get("best_find_value", 0))
+	ledger.best_find_member = JsonValue.as_name(data.get("best_find_member", ""))
+	var by_member: Dictionary = data.get("members", {})
+	for member_id: Variant in by_member:
+		var entry: Dictionary = by_member[member_id]
+		var member_ledger := MemberLedger.from_dict(entry)
+		ledger.members[member_ledger.member] = member_ledger
+	return ledger
+
+
 func _members_to_dict() -> Dictionary:
 	var by_member: Dictionary = {}
 	for member_id: StringName in members:

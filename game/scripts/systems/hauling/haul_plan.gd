@@ -70,6 +70,21 @@ func select_best() -> void:
 			_selected[item.uid] = true
 
 
+## The uids loaded so far, in the locker's order.
+func selected_uids() -> Array[int]:
+	var uids: Array[int] = []
+	for item in selected_items():
+		uids.append(item.uid)
+	return uids
+
+
+## Loads exactly [param uids], as another player's copy of the plan says.
+func set_selected(uids: Array[int]) -> void:
+	_selected.clear()
+	for uid in uids:
+		_selected[uid] = true
+
+
 func selected_items() -> Array[ItemInstance]:
 	var loaded: Array[ItemInstance] = []
 	for item in items:

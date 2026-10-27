@@ -117,3 +117,16 @@ design and the revised roadmap are in [`MULTIPLAYER.md`](MULTIPLAYER.md).
 - **Locker return is measured as contents value ÷ price and as money returned ÷ spent, with and without unsold stock.** The plan's 1.2× to 1.6× target is ambiguous; all three are reported.
 - **CI runs 20 seeds of the sim on every push and posts the report on the run's summary page.** The sim can't silently break, and anyone can see the numbers.
 - **CI exports a `.pck` with the Windows preset and plays day 1 through it headless (`tools/export_smoke.sh`).** A file the export leaves out fails CI instead of the game on Jack's PC; proved by leaving out `rivals.json`.
+
+## Phase 2: Co-op foundation (2026-10-27)
+
+### The day as one shared flow (branch `phase-2/live-state`)
+
+- **`DayFlow` runs the day: the stages (map, peek, bidding, result, reveal, haul, shop, summary), the clocks, the votes and the shop counters.** Online, one machine has to run all of that for everyone; before this, each screen ran its own piece.
+- **Every move goes through `DayFlow.handle(member, command, args)`, and screens make the local player's moves with `GameState.act(command)`.** A move from another machine will be the same call, so networking only has to carry commands.
+- **Moves that would cut a crewmate short wait for the whole crew: starting the bidding early, driving home, closing up.** Everything else (bids, the reveal, the next locker, the shop) goes through for whoever presses first, which keeps the day moving.
+- **Each crew member has their own shop counter and customer; customers never pick up an item someone else's customer is holding.** Several players can haggle at once.
+- **A bigger crew gets more customers: `crew_extra_customers` (4) per extra member, in the data.** More hands, more to do.
+- **Everything live copies to plain data (`to_dict`/`from_dict` on lockers, the day, auctions, customers, counters, the flow), and `DayFlow.mirror()` builds another player's copy.** The host sends state, not instructions to replay, so copies can't drift. Rival max bids and customer limits stay on the host.
+- **The app shell shows the screen for the day's stage.** Every player in a crew sees the same screen at the same time, and screens no longer move each other on.
+- **The game saves when the day closes (`DayFlow.day_closed`), from `GameState`, not from a screen.** Only the host will save.

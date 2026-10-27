@@ -81,11 +81,12 @@
     "shop": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["shelves", "slots_per_shelf", "customers_per_day", "price_step", "customers"],
+      "required": ["shelves", "slots_per_shelf", "customers_per_day", "crew_extra_customers", "price_step", "customers"],
       "properties": {
         "shelves": {"type": "integer", "minimum": 1},
         "slots_per_shelf": {"type": "integer", "minimum": 1},
         "customers_per_day": {"type": "integer", "minimum": 0},
+        "crew_extra_customers": {"type": "integer", "minimum": 0},
         "price_step": {"type": "integer", "minimum": 1},
         "customers": {
           "type": "object",

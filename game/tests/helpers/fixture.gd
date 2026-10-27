@@ -67,7 +67,7 @@ static func data() -> Dictionary:
 				"jump_min_raises": 3,
 				"min_opening": 10,
 			},
-			"shop": {"shelves": 2, "slots_per_shelf": 3, "customers_per_day": 4, "price_step": 5, "customers": {"haggler": 1}},
+			"shop": {"shelves": 2, "slots_per_shelf": 3, "customers_per_day": 4, "crew_extra_customers": 2, "price_step": 5, "customers": {"haggler": 1}},
 		},
 	}
 

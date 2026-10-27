@@ -26,3 +26,16 @@ static func path(screen: StringName) -> String:
 ## Asks the app shell to show [param screen].
 static func go(screen: StringName) -> void:
 	EventBus.screen_requested.emit(screen)
+
+
+## The screen that shows [param stage] of the day.
+static func for_stage(stage: DayFlow.Stage) -> StringName:
+	match stage:
+		DayFlow.Stage.MAP:
+			return MAP
+		DayFlow.Stage.SHOP:
+			return SHOP
+		DayFlow.Stage.SUMMARY:
+			return SUMMARY
+		_:
+			return AUCTION

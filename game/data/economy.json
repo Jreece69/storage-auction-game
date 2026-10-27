@@ -24,6 +24,7 @@
     "shelves": 4,
     "slots_per_shelf": 3,
     "customers_per_day": 8,
+    "crew_extra_customers": 4,
     "price_step": 5,
     "customers": {"bargain_hunter": 1}
   }

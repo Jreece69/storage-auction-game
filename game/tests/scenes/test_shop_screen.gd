@@ -1,12 +1,14 @@
 extends GutTest
 ## The shop: finds go from the back room onto the shelves with a price tag,
-## customers haggle one at a time, and closing up ends the day and saves.
+## customers come to this player's counter one at a time, and closing up ends
+## the day and saves. In a crew, closing up waits for everyone.
 
 const SaveSandbox := preload("res://tests/helpers/save_sandbox.gd")
 const SHOP_SCENE: PackedScene = preload("res://scenes/shop/shop_screen.tscn")
 
 var shop: ShopScreen
 var controller: RunController
+var flow: DayFlow
 
 
 func before_all() -> void:
@@ -21,8 +23,7 @@ func before_each() -> void:
 	SaveManager.delete_slot(SaveManager.AUTOSAVE)
 	GameState.new_game(31)
 	controller = GameState.controller
-	controller.start_day()
-	controller.start_afternoon()
+	flow = GameState.flow
 	watch_signals(EventBus)
 
 
@@ -39,7 +40,7 @@ func test_the_back_room_lists_what_the_player_owns() -> void:
 	assert_true(_named("Shelve_%d" % lamp).has_focus(), "focus starts on the first item")
 
 
-func test_an_empty_back_room_says_so_and_focuses_the_doors() -> void:
+func test_an_empty_back_room_focuses_the_doors() -> void:
 	_open()
 	assert_true(_button("%OpenDoorsButton").has_focus())
 
@@ -95,7 +96,7 @@ func test_with_empty_shelves_nobody_buys() -> void:
 	_open()
 	_press("%OpenDoorsButton")
 	assert_eq(shop.mode, ShopScreen.Mode.SELLING)
-	assert_null(shop.customer)
+	assert_null(_counter().customer)
 	assert_eq(_label("%HintLabel").text, tr("SHOP_NOTHING_TO_SELL"))
 	assert_true(_button("%NextCustomerButton").disabled)
 	assert_true(_button("%CloseUpButton").has_focus())
@@ -129,12 +130,13 @@ func test_countering_at_the_tag_sells_raises_or_loses_them() -> void:
 	assert_eq(shop.counter_amount, buyer.tag)
 	var cash_before := GameState.cash
 	_press("%CounterButton")
-	match buyer.state:
-		Customer.State.SOLD:
+	var counter := _counter()
+	match counter.outcome:
+		ShopCounter.Outcome.DEAL:
 			assert_eq(GameState.cash, cash_before + buyer.tag)
 			assert_eq(_label("%OutcomeLabel").text, tr("SHOP_DEAL") % Money.format(buyer.tag))
-		Customer.State.OFFERING:
-			assert_eq(_label("%OutcomeLabel").text, tr("SHOP_RAISED") % Money.format(buyer.offer))
+		ShopCounter.Outcome.RAISED:
+			assert_eq(_label("%OutcomeLabel").text, tr("SHOP_RAISED") % Money.format(counter.customer.offer))
 			assert_true(_button("%AcceptButton").is_visible_in_tree(), "the haggling goes on")
 		_:
 			assert_eq(_label("%OutcomeLabel").text, tr("SHOP_LOST_PATIENCE"))
@@ -151,8 +153,8 @@ func test_turning_a_customer_down_keeps_the_item() -> void:
 
 func test_after_the_last_customer_it_points_at_closing_up() -> void:
 	_stock_and_open()
-	for i in controller.catalog.economy.shop.customers_per_day:
-		if shop.customer != null and shop.customer.is_offering():
+	for i in controller.today.customers_left + 1:
+		if _counter().is_busy():
 			_press("%DeclineButton")
 		if _button("%NextCustomerButton").disabled:
 			break
@@ -171,15 +173,42 @@ func test_restocking_between_customers() -> void:
 	assert_true(_button("%OpenDoorsButton").is_visible_in_tree())
 
 
+func test_an_item_a_crewmates_customer_holds_cant_be_taken_down() -> void:
+	controller.crew = Crew.of_size(2)
+	var stock: Array[int] = [_give(&"chrome_boombox", 60), _give(&"porcelain_doll", 40)]
+	_open()
+	for uid in stock:
+		assert_true(shop.shelve(uid))
+	for i in controller.today.customers_left:
+		if flow.counter_of(&"p2").is_busy():
+			break
+		flow.handle(&"p2", "next_customer")
+	var held := flow.counter_of(&"p2").customer.item_uid
+	assert_true(_named("Down_shelf_%d" % held).disabled, "p2's customer has it in hand")
+
+
 func test_closing_up_ends_the_day_and_saves() -> void:
 	_open()
 	_press("%CloseUpButton")
 	assert_eq(GameState.day, 2)
+	assert_eq(flow.stage, DayFlow.Stage.SUMMARY)
 	assert_true(SaveManager.has_slot(SaveManager.AUTOSAVE))
-	assert_signal_emitted_with_parameters(EventBus, "screen_requested", [Screens.SUMMARY])
 
 
+func test_in_a_crew_closing_up_waits_for_everyone() -> void:
+	controller.crew = Crew.of_size(2)
+	_open()
+	_press("%CloseUpButton")
+	assert_eq(flow.stage, DayFlow.Stage.SHOP)
+	assert_eq(_button("%CloseUpButton").text, tr("UI_WAITING_FOR_CREW") % [1, 2])
+	flow.handle(&"p2", "close_up")
+	assert_eq(flow.stage, DayFlow.Stage.SUMMARY)
+
+
+## Skips the morning and opens the shop screen.
 func _open() -> void:
+	if flow.stage == DayFlow.Stage.MAP:
+		assert_true(flow.handle(Crew.HOST, "skip_to_shop"))
 	shop = SHOP_SCENE.instantiate()
 	add_child_autofree(shop)
 
@@ -191,7 +220,7 @@ func _give(def_id: StringName, base_value: int) -> int:
 	return uid
 
 
-## Shelves a few items and opens the doors.
+## Shelves a few items and goes to the counter.
 func _stock_and_open() -> void:
 	var stock: Array[int] = [_give(&"chrome_boombox", 60), _give(&"retro_game_console", 150), _give(&"porcelain_doll", 40), _give(&"cordless_drill_kit", 60)]
 	_open()
@@ -200,14 +229,18 @@ func _stock_and_open() -> void:
 	_press("%OpenDoorsButton")
 
 
-## Moves on until a customer is making an offer.
+## Moves on until a customer at this counter is making an offer.
 func _next_offering() -> Customer:
-	for i in controller.catalog.economy.shop.customers_per_day:
-		if shop.customer != null and shop.customer.is_offering():
-			return shop.customer
+	for i in controller.today.customers_left + 1:
+		if _counter().is_busy():
+			return _counter().customer
 		_press("%NextCustomerButton")
 	fail_test("no customer made an offer")
 	return null
+
+
+func _counter() -> ShopCounter:
+	return flow.counter_of(Crew.HOST)
 
 
 func _press(path: String) -> void:

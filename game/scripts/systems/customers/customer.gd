@@ -82,6 +82,31 @@ func decline() -> void:
 	_leave(Reason.DECLINED)
 
 
+## The customer as plain data, for other players' screens. Their limit
+## stays on the host unless [param secrets] is set.
+func to_dict(secrets: bool = false) -> Dictionary:
+	var data := {
+		"def": String(def.id),
+		"item": item_uid,
+		"tag": tag,
+		"offer": offer,
+		"patience_left": patience_left,
+		"state": state,
+		"reason": reason,
+	}
+	if secrets:
+		data["limit"] = limit
+	return data
+
+
+static func from_dict(data: Dictionary, catalog: Catalog, price_step: int) -> Customer:
+	var copy := Customer.new(catalog.customers[JsonValue.as_name(data["def"])], JsonValue.as_int(data["item"]), JsonValue.as_int(data["tag"]), JsonValue.as_int(data.get("limit", 0)), JsonValue.as_int(data["offer"]), price_step)
+	copy.patience_left = JsonValue.as_int(data.get("patience_left", 0))
+	copy.state = JsonValue.as_int(data.get("state", State.OFFERING)) as State
+	copy.reason = JsonValue.as_int(data.get("reason", Reason.NONE)) as Reason
+	return copy
+
+
 func _leave(why: Reason) -> void:
 	state = State.LEFT
 	reason = why

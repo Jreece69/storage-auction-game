@@ -47,7 +47,7 @@ func _ready() -> void:
 
 
 func _on_next_day_pressed() -> void:
-	Screens.go(Screens.MAP)
+	GameState.act("next_day")
 
 
 func _on_save_quit_pressed() -> void:

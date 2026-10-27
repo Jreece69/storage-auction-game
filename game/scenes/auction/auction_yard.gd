@@ -2,38 +2,22 @@ class_name AuctionYard
 extends Control
 ## The morning at the auction yard, one locker at a time: peek through the
 ## door, bid against the rivals, then for a win the reveal and loading the
-## van. The rules live in RunController and Auction; this screen shows what
-## they report and passes on the player's moves as the local crew member.
-##
-## The auction is drawn from the events it reports (bids, calls, folds, the
-## hammer), so in co-op the same screen can draw events the host broadcasts.
+## van. It draws the day as DayFlow has it and sends this player's moves
+## through GameState.act, so in co-op every player sees the same auction and
+## bids with their own paddle.
 
-enum Stage { PEEK, BIDDING, RESULT, REVEAL, HAUL, DONE }
-
-## Once the whole crew has passed, the rivals settle it this much faster.
-const FAST_FORWARD: float = 4.0
-## Seconds between items coming out during the reveal.
-const REVEAL_INTERVAL: float = 0.45
 ## Lines kept in the bidding feed.
 const FEED_LINES: int = 5
 
-## Where the screen is in the current locker. Read by tests.
-var stage: Stage = Stage.PEEK
-
-var _controller: RunController
+var _flow: DayFlow
 var _member: StringName
 var _seat: int
-var _locker: Locker = null
-var _auction: Auction = null
-var _plan: HaulPlan = null
-var _peek_left: float = 0.0
 var _feed: PackedStringArray = PackedStringArray()
 var _rival_labels: Dictionary[StringName, Label] = {}
 var _haul_toggles: Dictionary[int, CheckBox] = {}
-var _revealed: int = 0
-var _reveal_wait: float = 0.0
-var _settled_winner: StringName = Auction.NOBODY
-var _settled_price: int = 0
+## What's drawn already, so panels are only rebuilt when the day moves on.
+var _drawn_stage: int = -1
+var _drawn_lot: int = -1
 
 @onready var _lot_label: Label = %LotLabel
 @onready var _cash_label: Label = %CashLabel
@@ -74,138 +58,130 @@ var _settled_price: int = 0
 
 
 func _ready() -> void:
-	_controller = GameState.controller
+	_flow = GameState.flow
 	_member = GameState.local_member
 	_seat = GameState.local_seat()
 	EventBus.cash_changed.connect(_show_cash)
-	EventBus.locker_settled.connect(_on_locker_settled)
-	_start_button.pressed.connect(start_bidding)
-	_skip_button.pressed.connect(_on_skip_pressed)
-	_raise_button.pressed.connect(_on_raise_pressed)
-	_jump_button.pressed.connect(_on_jump_pressed)
+	EventBus.flow_changed.connect(_redraw)
+	EventBus.auction_events.connect(_on_auction_events)
+	_start_button.pressed.connect(GameState.act.bind("ready"))
+	_skip_button.pressed.connect(GameState.act.bind("sit_out"))
+	_raise_button.pressed.connect(GameState.act.bind("raise"))
+	_jump_button.pressed.connect(GameState.act.bind("jump"))
 	_pass_button.pressed.connect(_on_pass_pressed)
-	_result_button.pressed.connect(_on_result_pressed)
-	_reveal_skip_button.pressed.connect(reveal_all)
-	_load_button.pressed.connect(_start_haul)
-	_drive_button.pressed.connect(_on_drive_pressed)
-	_to_shop_button.pressed.connect(_on_to_shop_pressed)
-	_show_cash(_controller.run.cash)
-	if _controller.start_day().phase == DayPlan.Phase.MORNING:
-		_next_locker()
-	else:
-		_show_done()
+	_result_button.pressed.connect(GameState.act.bind("continue"))
+	_reveal_skip_button.pressed.connect(GameState.act.bind("show_all"))
+	_load_button.pressed.connect(GameState.act.bind("load"))
+	_drive_button.pressed.connect(GameState.act.bind("drive"))
+	_to_shop_button.pressed.connect(GameState.act.bind("open_shop"))
+	_redraw()
 
 
-func _process(delta: float) -> void:
-	tick(delta)
+## The clocks run down between changes, so they're redrawn every frame.
+func _process(_delta: float) -> void:
+	if _flow.stage == DayFlow.Stage.PEEK:
+		_peek_timer_label.text = tr("AUCTION_PEEK_TIMER") % ceili(_flow.peek_left)
+	elif _flow.stage == DayFlow.Stage.BIDDING and _flow.auction != null:
+		_countdown_bar.value = _flow.auction.countdown / _rules().countdown_seconds
 
 
-## Runs [param seconds] of screen time: the peek clock, the auction or the
-## reveal. Tests call it directly instead of waiting.
-func tick(seconds: float) -> void:
+## Brings the screen up to date with the day.
+func _redraw() -> void:
+	var stage := _flow.stage
+	var lot := _flow.locker.lot_number if _flow.locker != null else 0
+	var moved_on := stage != _drawn_stage or lot != _drawn_lot
+	_drawn_stage = stage
+	_drawn_lot = lot
+	_show_cash(GameState.cash)
 	match stage:
-		Stage.PEEK:
-			_peek_left -= seconds
-			if _peek_left <= 0.0:
-				start_bidding()
-			else:
-				_show_peek_clock()
-		Stage.BIDDING:
-			var speed := FAST_FORWARD if _auction.all_crew_out() else 1.0
-			_apply(_auction.advance(seconds * speed))
-		Stage.REVEAL:
-			_reveal_wait -= seconds
-			while stage == Stage.REVEAL and _reveal_wait <= 0.0 and _revealed < _locker.items.size():
-				_reveal_next()
-				_reveal_wait += REVEAL_INTERVAL
-
-
-## The auction in progress, or null outside the bidding. Read by tests.
-func current_auction() -> Auction:
-	return _auction
+		DayFlow.Stage.PEEK:
+			_draw_peek(moved_on)
+		DayFlow.Stage.BIDDING:
+			_draw_bidding(moved_on)
+		DayFlow.Stage.RESULT:
+			_draw_result(moved_on)
+		DayFlow.Stage.REVEAL:
+			_draw_reveal(moved_on)
+		DayFlow.Stage.HAUL:
+			_draw_haul(moved_on)
+		DayFlow.Stage.MORNING_DONE:
+			_draw_done(moved_on)
 
 
 # --- Peek ------------------------------------------------------------------
 
-func _next_locker() -> void:
-	_locker = _controller.today.next_locker()
-	if _locker == null:
-		_show_done()
-		return
-	_auction = null
-	_plan = null
-	stage = Stage.PEEK
-	_show_panel(_peek_panel)
-	var theme: LockerThemeDef = _controller.catalog.themes[_locker.theme_id]
-	_lot_label.text = tr("AUCTION_LOT") % [_locker.lot_number, _controller.today.lockers.size(), tr(theme.name_key)]
-	UiKit.clear(_peek_items)
-	for item in _locker.visible_items_for(_seat):
-		var rarity := _controller.pricing.def_of(item).rarity
-		var line := UiKit.label(UiKit.fmt("PEEK_ITEM", [UiKit.item_name(item.def_id), UiKit.rarity_name(rarity)]))
-		line.add_theme_color_override("font_color", UiKit.rarity_color(rarity))
-		_peek_items.add_child(line)
-	_hidden_label.text = tr("AUCTION_HIDDEN") % _locker.hidden_count_for(_seat)
-	var opening := Money.format(_locker.opening_price)
-	if _locker.opening_price > _controller.run.cash:
-		_opens_at_label.text = tr("AUCTION_OPENS_AT_BROKE") % opening
-	else:
-		_opens_at_label.text = tr("AUCTION_OPENS_AT") % opening
-	_peek_left = _rules().peek_seconds
-	_show_peek_clock()
-	_start_button.grab_focus()
-
-
-func _show_peek_clock() -> void:
-	_peek_timer_label.text = tr("AUCTION_PEEK_TIMER") % ceili(_peek_left)
-
-
-func _on_skip_pressed() -> void:
-	_controller.skip_locker(_locker)
-	_show_result()
+func _draw_peek(moved_on: bool) -> void:
+	var locker := _flow.locker
+	if moved_on:
+		_show_panel(_peek_panel)
+		_draw_lot_title()
+		UiKit.clear(_peek_items)
+		for item in locker.visible_items_for(_seat):
+			var rarity := _pricing().def_of(item).rarity
+			var line := UiKit.label(UiKit.fmt("PEEK_ITEM", [UiKit.item_name(item.def_id), UiKit.rarity_name(rarity)]))
+			line.add_theme_color_override("font_color", UiKit.rarity_color(rarity))
+			_peek_items.add_child(line)
+		_hidden_label.text = tr("AUCTION_HIDDEN") % locker.hidden_count_for(_seat)
+		var opening := Money.format(locker.opening_price)
+		if locker.opening_price > GameState.cash:
+			_opens_at_label.text = tr("AUCTION_OPENS_AT_BROKE") % opening
+		else:
+			_opens_at_label.text = tr("AUCTION_OPENS_AT") % opening
+	var answered := _flow.ready.has(_member)
+	_start_button.text = _crew_vote_text("AUCTION_START", answered)
+	_start_button.disabled = answered
+	_skip_button.disabled = answered
+	_peek_timer_label.text = tr("AUCTION_PEEK_TIMER") % ceili(_flow.peek_left)
+	if moved_on:
+		_start_button.grab_focus()
 
 
 # --- Bidding ---------------------------------------------------------------
 
-## Ends the peek and opens the bidding.
-func start_bidding() -> void:
-	if stage != Stage.PEEK:
-		return
-	_auction = _controller.open_auction(_locker)
-	stage = Stage.BIDDING
-	_feed.clear()
-	_call_label.text = ""
-	_show_panel(_bidding_panel)
-	UiKit.clear(_rivals)
-	_rival_labels.clear()
-	for bidder in _auction.bidders:
-		var line := UiKit.label("")
-		_rivals.add_child(line)
-		_rival_labels[bidder.id] = line
-	_refresh_bidding()
-	_raise_button.grab_focus()
-
-
-func _on_raise_pressed() -> void:
-	if stage == Stage.BIDDING:
-		_apply(_auction.raise(_member))
-
-
-func _on_jump_pressed() -> void:
-	if stage == Stage.BIDDING:
-		_apply(_auction.jump(_member))
+func _draw_bidding(moved_on: bool) -> void:
+	var auction := _flow.auction
+	if moved_on:
+		_show_panel(_bidding_panel)
+		_draw_lot_title()
+		_feed.clear()
+		_call_label.text = ""
+		UiKit.clear(_rivals)
+		_rival_labels.clear()
+		for bidder in auction.bidders:
+			var line := UiKit.label("")
+			_rivals.add_child(line)
+			_rival_labels[bidder.id] = line
+		if auction.crew_out.has(_member):
+			_add_feed(tr("FEED_YOU_PASS"))
+	if auction.high_bidder == Auction.NOBODY:
+		_price_label.text = tr("AUCTION_PRICE_OPENING") % Money.format(auction.opening_price)
+		_high_bidder_label.text = tr("AUCTION_NO_BIDS")
+	else:
+		_price_label.text = Money.format(auction.price)
+		_high_bidder_label.text = tr("AUCTION_HIGH_BIDDER") % UiKit.bidder_name(auction.high_bidder)
+	_countdown_bar.value = auction.countdown / _rules().countdown_seconds
+	for bidder in auction.bidders:
+		var status := "AUCTION_RIVAL_OUT" if bidder.folded else "AUCTION_RIVAL_IN"
+		if _rival_labels.has(bidder.id):
+			_rival_labels[bidder.id].text = tr(status) % [UiKit.rival_name(bidder.id), tr(bidder.def.personality_key)]
+	var raise_to := auction.next_bid()
+	var jump_to := auction.jump_bid()
+	_raise_button.text = tr("AUCTION_RAISE") % Money.format(raise_to)
+	_raise_button.disabled = not auction.can_bid(_member, raise_to)
+	_jump_button.text = tr("AUCTION_JUMP") % Money.format(jump_to)
+	_jump_button.disabled = not auction.can_bid(_member, jump_to)
+	_pass_button.disabled = auction.crew_out.has(_member)
+	_feed_label.text = "\n".join(_feed)
+	if moved_on:
+		_raise_button.grab_focus()
 
 
 func _on_pass_pressed() -> void:
-	if stage != Stage.BIDDING or _auction.crew_out.has(_member):
-		return
-	_auction.pass_out(_member)
-	_add_feed(tr("FEED_YOU_PASS"))
-	_refresh_bidding()
+	if GameState.act("pass"):
+		_add_feed(tr("FEED_YOU_PASS"))
 
 
-## Shows what the auction reported, and settles the locker once the hammer
-## falls.
-func _apply(events: Array[Dictionary]) -> void:
+func _on_auction_events(events: Array[Dictionary]) -> void:
 	for event in events:
 		var kind: String = event["type"]
 		match kind:
@@ -220,11 +196,6 @@ func _apply(events: Array[Dictionary]) -> void:
 				_call_label.text = tr("AUCTION_SOLD")
 			"unsold":
 				_call_label.text = tr("AUCTION_UNSOLD")
-	if _auction.is_open():
-		_refresh_bidding()
-	else:
-		_controller.settle_auction(_locker, _auction)
-		_show_result()
 
 
 func _show_bid(event: Dictionary) -> void:
@@ -241,27 +212,6 @@ func _show_bid(event: Dictionary) -> void:
 		_add_feed((tr("FEED_JUMP") if is_jump else tr("FEED_BID")) % [UiKit.bidder_name(bidder), amount])
 
 
-func _refresh_bidding() -> void:
-	if _auction.high_bidder == Auction.NOBODY:
-		_price_label.text = tr("AUCTION_PRICE_OPENING") % Money.format(_auction.opening_price)
-		_high_bidder_label.text = tr("AUCTION_NO_BIDS")
-	else:
-		_price_label.text = Money.format(_auction.price)
-		_high_bidder_label.text = tr("AUCTION_HIGH_BIDDER") % UiKit.bidder_name(_auction.high_bidder)
-	_countdown_bar.value = _auction.countdown / _rules().countdown_seconds
-	for bidder in _auction.bidders:
-		var status := "AUCTION_RIVAL_OUT" if bidder.folded else "AUCTION_RIVAL_IN"
-		_rival_labels[bidder.id].text = tr(status) % [UiKit.rival_name(bidder.id), tr(bidder.def.personality_key)]
-	var raise_to := _auction.next_bid()
-	var jump_to := _auction.jump_bid()
-	_raise_button.text = tr("AUCTION_RAISE") % Money.format(raise_to)
-	_raise_button.disabled = not _auction.can_bid(_member, raise_to)
-	_jump_button.text = tr("AUCTION_JUMP") % Money.format(jump_to)
-	_jump_button.disabled = not _auction.can_bid(_member, jump_to)
-	_pass_button.disabled = _auction.crew_out.has(_member)
-	_feed_label.text = "\n".join(_feed)
-
-
 func _add_feed(line: String) -> void:
 	_feed.append(line)
 	while _feed.size() > FEED_LINES:
@@ -271,158 +221,140 @@ func _add_feed(line: String) -> void:
 
 # --- Result ----------------------------------------------------------------
 
-func _on_locker_settled(lot_number: int, winner: StringName, price: int) -> void:
-	if _locker != null and lot_number == _locker.lot_number:
-		_settled_winner = winner
-		_settled_price = price
-
-
-func _crew_won() -> bool:
-	return _controller.crew.has(_settled_winner)
-
-
-func _show_result() -> void:
-	stage = Stage.RESULT
+func _draw_result(moved_on: bool) -> void:
+	if not moved_on:
+		return
 	_show_panel(_result_panel)
-	var price := Money.format(_settled_price)
-	if _settled_winner == Auction.NOBODY:
+	_draw_lot_title()
+	var price := Money.format(_flow.price)
+	if _flow.winner == Auction.NOBODY:
 		_result_label.text = tr("RESULT_UNSOLD")
-	elif _settled_winner == _member:
+	elif _flow.winner == _member:
 		_result_label.text = tr("RESULT_WON") % price
 	else:
-		_result_label.text = tr("RESULT_LOST") % [UiKit.bidder_name(_settled_winner), price]
-	_result_button.text = tr("RESULT_OPEN") if _crew_won() else tr("RESULT_NEXT")
+		_result_label.text = tr("RESULT_LOST") % [UiKit.bidder_name(_flow.winner), price]
+	_result_button.text = tr("RESULT_OPEN") if _flow.crew_won() else tr("RESULT_NEXT")
 	_result_button.grab_focus()
-
-
-func _on_result_pressed() -> void:
-	if _crew_won():
-		_start_reveal()
-	else:
-		_next_locker()
 
 
 # --- Reveal ----------------------------------------------------------------
 
-func _start_reveal() -> void:
-	stage = Stage.REVEAL
-	_show_panel(_reveal_panel)
-	UiKit.clear(_reveal_items)
-	_revealed = 0
-	_reveal_wait = REVEAL_INTERVAL
-	_reveal_total_label.text = ""
-	_load_button.text = tr("HAUL_LOAD") % tr(_controller.vehicle().name_key)
-	_load_button.disabled = true
-	_reveal_skip_button.disabled = false
-	_reveal_skip_button.grab_focus()
-
-
-## Brings everything out at once.
-func reveal_all() -> void:
-	while stage == Stage.REVEAL and _revealed < _locker.items.size():
-		_reveal_next()
-
-
-func _reveal_next() -> void:
-	var item := _locker.items[_revealed]
-	_revealed += 1
-	var def := _controller.pricing.def_of(item)
-	var value := Money.format(_controller.pricing.market_value(item))
-	var line := UiKit.label(UiKit.fmt("REVEAL_ITEM", [UiKit.item_name(item.def_id), UiKit.state_of(item), value]))
-	line.add_theme_color_override("font_color", UiKit.rarity_color(def.rarity))
-	_reveal_items.add_child(line)
-	if _revealed >= _locker.items.size():
-		var total := Money.format(_controller.pricing.locker_value(_locker))
-		_reveal_total_label.text = tr("REVEAL_TOTAL") % [total, Money.format(_settled_price)]
-		_load_button.disabled = false
-		_reveal_skip_button.disabled = true
+func _draw_reveal(moved_on: bool) -> void:
+	var locker := _flow.locker
+	if moved_on:
+		_show_panel(_reveal_panel)
+		_draw_lot_title()
+		UiKit.clear(_reveal_items)
+		_reveal_total_label.text = ""
+		_load_button.text = tr("HAUL_LOAD") % tr(_controller().vehicle().name_key)
+	while _reveal_items.get_child_count() < _flow.revealed:
+		var item := locker.items[_reveal_items.get_child_count()]
+		var def := _pricing().def_of(item)
+		var value := Money.format(_pricing().market_value(item))
+		var line := UiKit.label(UiKit.fmt("REVEAL_ITEM", [UiKit.item_name(item.def_id), UiKit.state_of(item), value]))
+		line.add_theme_color_override("font_color", UiKit.rarity_color(def.rarity))
+		_reveal_items.add_child(line)
+	var all_out := _flow.revealed >= locker.items.size()
+	_load_button.disabled = not all_out
+	_reveal_skip_button.disabled = all_out
+	if all_out and _reveal_total_label.text.is_empty():
+		var total := Money.format(_pricing().locker_value(locker))
+		_reveal_total_label.text = tr("REVEAL_TOTAL") % [total, Money.format(_flow.price)]
 		_load_button.grab_focus()
+	elif moved_on:
+		_reveal_skip_button.grab_focus()
 
 
 # --- Haul ------------------------------------------------------------------
 
-func _start_haul() -> void:
-	stage = Stage.HAUL
-	_plan = _controller.plan_haul(_locker)
-	_show_panel(_haul_panel)
-	_haul_title.text = tr("HAUL_TITLE") % tr(_controller.vehicle().name_key)
-	_haul_hint_label.text = tr("HAUL_HINT")
-	UiKit.clear(_haul_items)
-	_haul_toggles.clear()
-	for item in _locker.items:
-		var toggle := CheckBox.new()
-		toggle.text = _haul_line(item)
-		toggle.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-		toggle.custom_minimum_size = Vector2(0, UiKit.ROW_HEIGHT)
-		toggle.button_pressed = _plan.is_selected(item.uid)
-		toggle.toggled.connect(_on_haul_toggled.bind(item.uid, toggle))
-		_haul_items.add_child(toggle)
-		_haul_toggles[item.uid] = toggle
-	_refresh_haul()
-	_drive_button.grab_focus()
+func _draw_haul(moved_on: bool) -> void:
+	var plan := _flow.haul
+	if moved_on:
+		_show_panel(_haul_panel)
+		_draw_lot_title()
+		_haul_title.text = tr("HAUL_TITLE") % tr(_controller().vehicle().name_key)
+		_haul_hint_label.text = tr("HAUL_HINT")
+		UiKit.clear(_haul_items)
+		_haul_toggles.clear()
+		for item in _flow.locker.items:
+			var toggle := CheckBox.new()
+			toggle.text = _haul_line(item)
+			toggle.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+			toggle.custom_minimum_size = Vector2(0, UiKit.ROW_HEIGHT)
+			toggle.toggled.connect(_on_haul_toggled.bind(item.uid))
+			_haul_items.add_child(toggle)
+			_haul_toggles[item.uid] = toggle
+	for uid: int in _haul_toggles:
+		_haul_toggles[uid].set_pressed_no_signal(plan.is_selected(uid))
+	var vehicle := _controller().vehicle()
+	var capacity := tr("HAUL_CAPACITY") % [plan.weight_used(), vehicle.max_weight, plan.volume_used(), vehicle.max_volume]
+	var scrap := tr("HAUL_SCRAP") % Money.format(plan.scrap_value(_flow.locker.junk_weight))
+	_capacity_label.text = capacity + "\n" + scrap
+	var answered := _flow.ready.has(_member)
+	_drive_button.text = _crew_vote_text("HAUL_DRIVE", answered)
+	_drive_button.disabled = answered
+	if moved_on:
+		_drive_button.grab_focus()
 
 
 ## Clicks the row for item [param uid], loading or unloading it. Returns
 ## whether the click took (loading fails when the item won't fit).
 func click_haul_row(uid: int) -> bool:
-	var was_loaded := _plan.is_selected(uid)
+	var was_loaded := _flow.haul.is_selected(uid)
 	var toggle := _haul_toggles[uid]
 	toggle.button_pressed = not toggle.button_pressed
-	return _plan.is_selected(uid) != was_loaded
+	return _flow.haul.is_selected(uid) != was_loaded
 
 
-func haul_plan() -> HaulPlan:
-	return _plan
-
-
-func _on_haul_toggled(toggled_on: bool, uid: int, toggle: CheckBox) -> void:
-	if toggled_on == _plan.is_selected(uid):
+func _on_haul_toggled(toggled_on: bool, uid: int) -> void:
+	var plan := _flow.haul
+	if toggled_on == plan.is_selected(uid):
 		return
-	if not _plan.toggle(uid):
-		toggle.set_pressed_no_signal(false)
+	# Checked here first, so a full van says so at once, even in co-op.
+	if toggled_on and not plan.fits(_flow.locker.find_item(uid)):
+		_haul_toggles[uid].set_pressed_no_signal(false)
 		_haul_hint_label.text = tr("HAUL_NO_FIT")
 		return
 	_haul_hint_label.text = tr("HAUL_HINT")
-	_refresh_haul()
-
-
-func _refresh_haul() -> void:
-	var vehicle := _controller.vehicle()
-	var capacity := tr("HAUL_CAPACITY") % [_plan.weight_used(), vehicle.max_weight, _plan.volume_used(), vehicle.max_volume]
-	var scrap := tr("HAUL_SCRAP") % Money.format(_plan.scrap_value(_locker.junk_weight))
-	_capacity_label.text = capacity + "\n" + scrap
+	GameState.act("toggle", {"uid": uid})
 
 
 func _haul_line(item: ItemInstance) -> String:
-	var def := _controller.pricing.def_of(item)
-	var value := Money.format(_controller.pricing.market_value(item))
+	var def := _pricing().def_of(item)
+	var value := Money.format(_pricing().market_value(item))
 	return UiKit.fmt("HAUL_ITEM", [UiKit.item_name(item.def_id), UiKit.state_of(item), value, def.weight, def.size])
-
-
-func _on_drive_pressed() -> void:
-	_controller.finish_haul(_locker, _plan)
-	_next_locker()
 
 
 # --- Done ------------------------------------------------------------------
 
-func _show_done() -> void:
-	stage = Stage.DONE
-	_locker = null
-	_auction = null
+func _draw_done(moved_on: bool) -> void:
+	if not moved_on:
+		return
 	_show_panel(_done_panel)
 	_lot_label.text = tr("AUCTION_MORNING_TITLE")
-	var today := _controller.today
+	var today := _controller().today
 	_done_count_label.text = tr("AUCTION_MORNING_COUNT") % [today.ledger.lockers_won, today.lockers.size()]
 	_to_shop_button.grab_focus()
 
 
-func _on_to_shop_pressed() -> void:
-	_controller.start_afternoon()
-	Screens.go(Screens.SHOP)
-
-
 # --- Shared ----------------------------------------------------------------
+
+func _draw_lot_title() -> void:
+	var locker := _flow.locker
+	var theme: LockerThemeDef = _controller().catalog.themes[locker.theme_id]
+	_lot_label.text = tr("AUCTION_LOT") % [locker.lot_number, _controller().today.lockers.size(), tr(theme.name_key)]
+
+
+## The text for a button that waits on the whole crew: plain when playing
+## alone, with a count of who's ready in co-op.
+func _crew_vote_text(key: String, answered: bool) -> String:
+	var crew_size := _flow.crew().size()
+	if crew_size <= 1:
+		return tr(key)
+	if answered:
+		return tr("UI_WAITING_FOR_CREW") % [_flow.ready.size(), crew_size]
+	return tr("UI_CREW_READY") % [tr(key), _flow.ready.size(), crew_size]
+
 
 func _show_panel(panel: Control) -> void:
 	var panels: Array[Control] = [_peek_panel, _bidding_panel, _result_panel, _reveal_panel, _haul_panel, _done_panel]
@@ -434,5 +366,13 @@ func _show_cash(cash: int) -> void:
 	_cash_label.text = tr("UI_CASH") % Money.format(cash)
 
 
+func _controller() -> RunController:
+	return _flow.controller
+
+
+func _pricing() -> Pricing:
+	return _flow.controller.pricing
+
+
 func _rules() -> AuctionRules:
-	return _controller.catalog.economy.auction
+	return _flow.controller.catalog.economy.auction

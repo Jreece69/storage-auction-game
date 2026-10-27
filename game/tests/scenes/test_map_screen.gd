@@ -43,7 +43,7 @@ func test_auction_button_has_focus_and_goes_to_the_auction() -> void:
 	var auction: Button = _open().get_node("%AuctionButton")
 	assert_true(auction.has_focus())
 	auction.pressed.emit()
-	assert_signal_emitted_with_parameters(EventBus, "screen_requested", [Screens.AUCTION])
+	assert_eq(GameState.flow.stage, DayFlow.Stage.PEEK)
 
 
 func test_skipping_to_the_shop_gives_the_lockers_to_the_rivals() -> void:
@@ -52,7 +52,7 @@ func test_skipping_to_the_shop_gives_the_lockers_to_the_rivals() -> void:
 	var today := GameState.controller.today
 	assert_eq(today.phase, DayPlan.Phase.AFTERNOON)
 	assert_eq(today.results.size(), today.lockers.size())
-	assert_signal_emitted_with_parameters(EventBus, "screen_requested", [Screens.SHOP])
+	assert_eq(GameState.flow.stage, DayFlow.Stage.SHOP)
 
 
 func test_no_scrap_job_while_there_is_money() -> void:
@@ -68,7 +68,7 @@ func test_a_broke_player_is_offered_a_scrap_job() -> void:
 	assert_true(scrap.has_focus())
 	scrap.pressed.emit()
 	assert_eq(GameState.cash, 20 + Content.catalog.economy.scrap_job_pay)
-	assert_signal_emitted_with_parameters(EventBus, "screen_requested", [Screens.SHOP])
+	assert_eq(GameState.flow.stage, DayFlow.Stage.SHOP)
 
 
 func test_save_and_quit_writes_the_save_and_returns_to_the_title() -> void:

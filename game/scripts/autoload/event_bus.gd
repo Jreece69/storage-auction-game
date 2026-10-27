@@ -28,6 +28,14 @@ signal day_ended(summary: Dictionary)
 ## does the swap, so a screen never needs to know about the others.
 signal screen_requested(screen: StringName)
 
+## Something about the day in progress changed (see DayFlow): screens
+## redraw, and the app shell shows the screen for the day's stage.
+signal flow_changed()
+
+## What happened in the auction, in order (see Auction), for feeds and
+## effects.
+signal auction_events(events: Array[Dictionary])
+
 ## A save slot was written to disk.
 signal game_saved(slot: String)
 

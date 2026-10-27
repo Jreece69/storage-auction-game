@@ -18,7 +18,6 @@ var _controller: RunController
 
 func _ready() -> void:
 	_controller = GameState.controller
-	_controller.start_day()
 	var run := _controller.run
 	var economy := _controller.catalog.economy
 	_day_label.text = tr("MAP_DAY") % run.day
@@ -39,28 +38,14 @@ func _ready() -> void:
 	_scrap_job_button.visible = broke
 	_broke_hint_label.visible = broke
 
-	_auction_button.pressed.connect(_on_auction_pressed)
-	_shop_button.pressed.connect(_on_shop_pressed)
-	_scrap_job_button.pressed.connect(_on_scrap_job_pressed)
+	_auction_button.pressed.connect(GameState.act.bind("go_to_auction"))
+	_shop_button.pressed.connect(GameState.act.bind("skip_to_shop"))
+	_scrap_job_button.pressed.connect(GameState.act.bind("scrap_job"))
 	_save_quit_button.pressed.connect(_on_save_quit_pressed)
 	if broke:
 		_scrap_job_button.grab_focus()
 	else:
 		_auction_button.grab_focus()
-
-
-func _on_auction_pressed() -> void:
-	Screens.go(Screens.AUCTION)
-
-
-func _on_shop_pressed() -> void:
-	_controller.start_afternoon()
-	Screens.go(Screens.SHOP)
-
-
-func _on_scrap_job_pressed() -> void:
-	_controller.take_scrap_job()
-	Screens.go(Screens.SHOP)
 
 
 func _on_save_quit_pressed() -> void:

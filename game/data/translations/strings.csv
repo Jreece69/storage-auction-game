@@ -11,6 +11,8 @@ UI_NET_WORTH,Net worth: %s
 UI_YOU,You
 UI_PLAYER,Player %d
 UI_DIRTY,"%s, dirty"
+UI_CREW_READY,%s (%d of %d ready)
+UI_WAITING_FOR_CREW,Waiting for the crew (%d of %d ready)
 MAP_DAY,Day %d
 MAP_RENT_TONIGHT,Rent of %s is due tonight.
 MAP_RENT_TOMORROW,Rent of %s is due tomorrow night.

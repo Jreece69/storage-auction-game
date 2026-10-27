@@ -42,6 +42,7 @@ func test_new_game_starts_a_run_and_goes_to_the_map() -> void:
 	new_game.pressed.emit()
 	assert_true(GameState.has_run())
 	assert_eq(GameState.day, 1)
+	assert_eq(GameState.flow.stage, DayFlow.Stage.MAP, "the day starts on the map")
 	assert_signal_emitted_with_parameters(EventBus, "screen_requested", [Screens.MAP])
 
 

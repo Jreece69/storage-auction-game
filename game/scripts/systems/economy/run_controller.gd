@@ -208,11 +208,15 @@ func set_price(uid: int, price: int) -> void:
 
 
 ## The next shopper, or null once the day's customers are done or there's
-## nothing on the shelves.
-func next_customer() -> Customer:
+## nothing on the shelves. They never pick up an item in [param held], the
+## ones other customers already have in hand.
+func next_customer(held: Array[int] = []) -> Customer:
 	if today == null or today.phase != DayPlan.Phase.AFTERNOON or today.customers_left <= 0:
 		return null
-	var stock := run.shop.shelved_uids()
+	var stock: Array[int] = []
+	for uid in run.shop.shelved_uids():
+		if not held.has(uid):
+			stock.append(uid)
 	if stock.is_empty():
 		return null
 	today.customers_left -= 1
