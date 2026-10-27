@@ -5,3 +5,95 @@ TITLE_VERSION,Version %s
 TITLE_COMING_SOON,The first auction opens in Phase 1.
 MENU_NEW_GAME,New game
 MENU_QUIT,Quit
+ZONE_RUSTY_ROW,Rusty Row Storage
+THEME_ATTIC_CLEAROUT,Attic Clear-out
+THEME_GAMERS_DEN,Gamer's Den
+THEME_CONTRACTORS_GARAGE,Contractor's Garage
+RIVAL_FINN,Finn Tully
+RIVAL_MARLA,Marla Voss
+RIVAL_CASS,Cass Pickett
+PERSONALITY_ROOKIE,Rookie
+PERSONALITY_SHARK,Shark
+PERSONALITY_COLLECTOR,Collector
+CUSTOMER_BARGAIN_HUNTER,Bargain hunter
+VEHICLE_HATCHBACK,Hatchback
+VEHICLE_PICKUP,Pickup
+VEHICLE_BOX_TRUCK,Box truck
+VEHICLE_SEMI,Semi
+CATEGORY_FURNITURE,Furniture
+CATEGORY_DECOR,Decor
+CATEGORY_BOOKS,Books
+CATEGORY_TOYS,Toys
+CATEGORY_ELECTRONICS,Electronics
+CATEGORY_GAMES,Games
+CATEGORY_TOOLS,Tools
+CATEGORY_OUTDOOR,Outdoor
+RARITY_COMMON,Common
+RARITY_UNCOMMON,Uncommon
+RARITY_RARE,Rare
+RARITY_EPIC,Epic
+RARITY_LEGENDARY,Legendary
+CONDITION_BROKEN,Broken
+CONDITION_WORN,Worn
+CONDITION_GOOD,Good
+CONDITION_MINT,Mint
+ITEM_OAK_ROCKING_CHAIR,Oak Rocking Chair
+ITEM_OAK_ROCKING_CHAIR_DESC,Creaks in a way that sounds like a story.
+ITEM_BRASS_FLOOR_LAMP,Brass Floor Lamp
+ITEM_BRASS_FLOOR_LAMP_DESC,Works if you jiggle the cord. Mostly.
+ITEM_MID_CENTURY_SIDE_TABLE,Mid-Century Side Table
+ITEM_MID_CENTURY_SIDE_TABLE_DESC,"Tapered legs, one coffee ring, zero regrets."
+ITEM_VELVET_WINGBACK_CHAIR,Velvet Wingback Chair
+ITEM_VELVET_WINGBACK_CHAIR_DESC,"Plush, emerald green and suspiciously well kept."
+ITEM_BOX_OF_PICTURE_FRAMES,Box of Picture Frames
+ITEM_BOX_OF_PICTURE_FRAMES_DESC,Every frame still holds a stranger's vacation.
+ITEM_CERAMIC_ROOSTER,Ceramic Rooster
+ITEM_CERAMIC_ROOSTER_DESC,Glares at you from every angle.
+ITEM_HAND_PAINTED_LANDSCAPE,Hand-Painted Landscape
+ITEM_HAND_PAINTED_LANDSCAPE_DESC,"A lake, a cabin and a signature nobody can read."
+ITEM_ART_DECO_MANTEL_CLOCK,Art Deco Mantel Clock
+ITEM_ART_DECO_MANTEL_CLOCK_DESC,"Chrome, black glass and a tick you can feel."
+ITEM_BOX_OF_PAPERBACKS,Box of Paperbacks
+ITEM_BOX_OF_PAPERBACKS_DESC,"Mysteries, westerns and one very damp cookbook."
+ITEM_STACK_OF_COMIC_BOOKS,Stack of Comic Books
+ITEM_STACK_OF_COMIC_BOOKS_DESC,Bagged and boarded by someone who cared.
+ITEM_LEATHER_BOUND_ATLAS,Leather-Bound Atlas
+ITEM_LEATHER_BOUND_ATLAS_DESC,Shows three countries that no longer exist.
+ITEM_BAG_OF_MARBLES,Bag of Marbles
+ITEM_BAG_OF_MARBLES_DESC,"A few cat's-eyes in there, if you look."
+ITEM_PORCELAIN_DOLL,Porcelain Doll
+ITEM_PORCELAIN_DOLL_DESC,Its eyes follow you. Price it to move.
+ITEM_TIN_WIND_UP_ROBOT,Tin Wind-Up Robot
+ITEM_TIN_WIND_UP_ROBOT_DESC,Still walks three steps and falls over. Charming.
+ITEM_SEALED_FIRST_RUN_BOARD_GAME,Sealed First-Run Board Game
+ITEM_SEALED_FIRST_RUN_BOARD_GAME_DESC,Still in the shrink wrap. Collectors will fight over it.
+ITEM_TUBE_TELEVISION,Tube Television
+ITEM_TUBE_TELEVISION_DESC,"Heavy as regret, warm as a campfire."
+ITEM_CHROME_BOOMBOX,Chrome Boombox
+ITEM_CHROME_BOOMBOX_DESC,"Eats tapes, but sounds amazing doing it."
+ITEM_BEIGE_DESKTOP_TOWER,Beige Desktop Tower
+ITEM_BEIGE_DESKTOP_TOWER_DESC,Might hold someone's lost novel. Might hold dust.
+ITEM_REEL_TO_REEL_DECK,Reel-to-Reel Tape Deck
+ITEM_REEL_TO_REEL_DECK_DESC,Audiophiles will pay to hear it hiss.
+ITEM_GAME_CARTRIDGE_BUNDLE,Bundle of Game Cartridges
+ITEM_GAME_CARTRIDGE_BUNDLE_DESC,Blow into each one before testing.
+ITEM_RETRO_GAME_CONSOLE,Retro Game Console
+ITEM_RETRO_GAME_CONSOLE_DESC,"Two controllers, one cord tied in a knot."
+ITEM_UPRIGHT_ARCADE_CABINET,Upright Arcade Cabinet
+ITEM_UPRIGHT_ARCADE_CABINET_DESC,Weighs as much as a fridge. Plays like a dream.
+ITEM_GRADED_CARD_BINDER,Binder of Graded Trading Cards
+ITEM_GRADED_CARD_BINDER_DESC,Every card sealed and scored. Handle with care.
+ITEM_CORDLESS_DRILL_KIT,Cordless Drill Kit
+ITEM_CORDLESS_DRILL_KIT_DESC,"Two batteries, and one of them still holds a charge."
+ITEM_BUCKET_OF_HAND_TOOLS,Bucket of Hand Tools
+ITEM_BUCKET_OF_HAND_TOOLS_DESC,"Wrenches, pliers and a screwdriver from every decade."
+ITEM_ROLLING_TOOLBOX,Rolling Toolbox
+ITEM_ROLLING_TOOLBOX_DESC,"Fifteen drawers, all of them full."
+ITEM_BLACKSMITH_ANVIL,Blacksmith's Anvil
+ITEM_BLACKSMITH_ANVIL_DESC,Rings like a bell. Do not drop on foot.
+ITEM_FISHING_TACKLE_BOX,Fishing Tackle Box
+ITEM_FISHING_TACKLE_BOX_DESC,"Lures, sinkers and a fish story in every tray."
+ITEM_TEN_SPEED_BICYCLE,Ten-Speed Bicycle
+ITEM_TEN_SPEED_BICYCLE_DESC,Needs air in the tires and nothing else.
+ITEM_ANTIQUE_OUTBOARD_MOTOR,Antique Outboard Motor
+ITEM_ANTIQUE_OUTBOARD_MOTOR_DESC,Polished brass and a maker's plate collectors dream about.

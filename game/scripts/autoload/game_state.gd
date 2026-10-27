@@ -28,5 +28,5 @@ func to_dict() -> Dictionary:
 
 
 func from_dict(data: Dictionary) -> void:
-	day = int(data.get("day", 0))
-	set_cash(int(data.get("cash", 0)))
+	day = JsonValue.as_int(data.get("day", 0))
+	set_cash(JsonValue.as_int(data.get("cash", 0)))

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "bargain_hunter",
+    "will_pay": [0.65, 1.0],
+    "walk_away_ratio": 1.6,
+    "opening_offer": [0.65, 0.85],
+    "patience": 2,
+    "raise_share": 0.5,
+    "interest_chance": 0.8
+  }
+]

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Zones (storage facilities)",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "unlock_net_worth", "lockers_per_day", "opening_factor", "opening_noise", "themes", "rarity_weights", "rivals"],
+    "properties": {
+      "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+      "unlock_net_worth": {"type": "integer", "minimum": 0},
+      "lockers_per_day": {"type": "integer", "minimum": 1},
+      "opening_factor": {
+        "description": "Opening price = contents value x opening_factor x noise",
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "maximum": 2
+      },
+      "opening_noise": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {"type": "number", "exclusiveMinimum": 0}
+      },
+      "themes": {
+        "type": "object",
+        "minProperties": 1,
+        "propertyNames": {"pattern": "^[a-z][a-z0-9_]*$"},
+        "additionalProperties": {"type": "number", "exclusiveMinimum": 0}
+      },
+      "rarity_weights": {
+        "type": "object",
+        "minProperties": 1,
+        "propertyNames": {"enum": ["common", "uncommon", "rare", "epic", "legendary"]},
+        "additionalProperties": {"type": "number", "minimum": 0}
+      },
+      "rivals": {
+        "type": "array",
+        "minItems": 1,
+        "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"}
+      },
+      "rival_budget_factor": {"type": "number", "exclusiveMinimum": 0}
+    }
+  }
+}

@@ -1,0 +1,6 @@
+[
+  {"id": "bag_of_marbles", "category": "toys", "rarity": "common", "value": [5, 15], "weight": 3, "size": 1, "condition": ["worn", "mint"]},
+  {"id": "porcelain_doll", "category": "toys", "rarity": "common", "value": [20, 60], "weight": 3, "size": 1, "condition": ["broken", "mint"]},
+  {"id": "tin_wind_up_robot", "category": "toys", "rarity": "uncommon", "value": [60, 160], "weight": 2, "size": 1, "condition": ["broken", "mint"]},
+  {"id": "sealed_first_run_board_game", "category": "toys", "rarity": "epic", "value": [500, 1200], "weight": 4, "size": 1, "condition": ["good", "mint"]}
+]

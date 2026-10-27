@@ -1,0 +1,5 @@
+[
+  {"id": "fishing_tackle_box", "category": "outdoor", "rarity": "common", "value": [15, 45], "weight": 12, "size": 1, "condition": ["worn", "mint"]},
+  {"id": "ten_speed_bicycle", "category": "outdoor", "rarity": "uncommon", "value": [70, 180], "weight": 30, "size": 3, "condition": ["broken", "mint"]},
+  {"id": "antique_outboard_motor", "category": "outdoor", "rarity": "legendary", "value": [1500, 3500], "weight": 80, "size": 2, "condition": ["worn", "mint"]}
+]

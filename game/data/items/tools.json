@@ -1,0 +1,6 @@
+[
+  {"id": "cordless_drill_kit", "category": "tools", "rarity": "common", "value": [30, 75], "weight": 8, "size": 1, "condition": ["broken", "mint"]},
+  {"id": "bucket_of_hand_tools", "category": "tools", "rarity": "common", "value": [15, 40], "weight": 30, "size": 1, "condition": ["worn", "good"]},
+  {"id": "rolling_toolbox", "category": "tools", "rarity": "uncommon", "value": [120, 280], "weight": 90, "size": 2, "condition": ["worn", "mint"]},
+  {"id": "blacksmith_anvil", "category": "tools", "rarity": "rare", "value": [200, 500], "weight": 150, "size": 2, "condition": ["worn", "mint"]}
+]

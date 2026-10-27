@@ -1,0 +1,6 @@
+[
+  {"id": "game_cartridge_bundle", "category": "games", "rarity": "common", "value": [25, 70], "weight": 4, "size": 1, "condition": ["worn", "mint"]},
+  {"id": "retro_game_console", "category": "games", "rarity": "uncommon", "value": [80, 200], "weight": 5, "size": 1, "condition": ["broken", "mint"]},
+  {"id": "upright_arcade_cabinet", "category": "games", "rarity": "rare", "value": [400, 900], "weight": 250, "size": 3, "condition": ["broken", "good"]},
+  {"id": "graded_card_binder", "category": "games", "rarity": "epic", "value": [600, 1500], "weight": 3, "size": 1, "condition": ["good", "mint"]}
+]

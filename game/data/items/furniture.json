@@ -1,0 +1,6 @@
+[
+  {"id": "oak_rocking_chair", "category": "furniture", "rarity": "common", "value": [40, 90], "weight": 35, "size": 3, "condition": ["broken", "mint"]},
+  {"id": "brass_floor_lamp", "category": "furniture", "rarity": "common", "value": [25, 65], "weight": 14, "size": 2, "condition": ["broken", "mint"]},
+  {"id": "mid_century_side_table", "category": "furniture", "rarity": "uncommon", "value": [90, 220], "weight": 25, "size": 2, "condition": ["worn", "mint"]},
+  {"id": "velvet_wingback_chair", "category": "furniture", "rarity": "rare", "value": [250, 600], "weight": 55, "size": 3, "condition": ["worn", "mint"]}
+]

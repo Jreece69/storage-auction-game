@@ -1,0 +1,30 @@
+{
+  "starting_cash": 600,
+  "starting_vehicle": "hatchback",
+  "starting_zone": "rusty_row",
+  "rent": {"amount": 150, "every_days": 7},
+  "scrap": {"per_pound": 0.1, "job_pay": 75},
+  "conditions": {
+    "order": ["broken", "worn", "good", "mint"],
+    "multipliers": {"broken": 0.35, "worn": 0.7, "good": 1.0, "mint": 1.4},
+    "weights": {"broken": 15, "worn": 35, "good": 35, "mint": 15}
+  },
+  "dirty": {"chance": 0.35, "multiplier": 0.85},
+  "auction": {
+    "peek_seconds": 20,
+    "visible_share": 0.34,
+    "countdown_seconds": 5,
+    "raise_share": 0.05,
+    "min_raise": 5,
+    "jump_share": 0.25,
+    "jump_min_raises": 3,
+    "min_opening": 10
+  },
+  "shop": {
+    "shelves": 4,
+    "slots_per_shelf": 3,
+    "customers_per_day": 6,
+    "price_step": 5,
+    "customers": {"bargain_hunter": 1}
+  }
+}

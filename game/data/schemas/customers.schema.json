@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Shop customer types",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "will_pay", "walk_away_ratio", "opening_offer", "patience", "raise_share", "interest_chance"],
+    "properties": {
+      "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+      "will_pay": {
+        "description": "Their limit as a share of market value, [min, max]",
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {"type": "number", "exclusiveMinimum": 0}
+      },
+      "walk_away_ratio": {
+        "description": "They leave without an offer when the tag is this many times their limit",
+        "type": "number",
+        "minimum": 1
+      },
+      "opening_offer": {
+        "description": "First offer as a share of their limit, [min, max]",
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {"type": "number", "exclusiveMinimum": 0, "maximum": 1}
+      },
+      "patience": {"description": "Counters before they leave", "type": "integer", "minimum": 0},
+      "raise_share": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+      "interest_chance": {"type": "number", "minimum": 0, "maximum": 1}
+    }
+  }
+}

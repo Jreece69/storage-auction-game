@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+Content="*res://scripts/autoload/content.gd"
 EventBus="*res://scripts/autoload/event_bus.gd"
 Rng="*res://scripts/autoload/rng.gd"
 Settings="*res://scripts/autoload/settings.gd"
@@ -28,10 +29,10 @@ SaveManager="*res://scripts/autoload/save_manager.gd"
 [debug]
 
 gdscript/warnings/untyped_declaration=2
-gdscript/warnings/unsafe_property_access=1
-gdscript/warnings/unsafe_method_access=1
-gdscript/warnings/unsafe_cast=1
-gdscript/warnings/unsafe_call_argument=1
+gdscript/warnings/unsafe_property_access=2
+gdscript/warnings/unsafe_method_access=2
+gdscript/warnings/unsafe_cast=2
+gdscript/warnings/unsafe_call_argument=2
 
 [display]
 

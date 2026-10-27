@@ -83,12 +83,13 @@ func read_slot(slot: String) -> Dictionary:
 	if json.parse(FileAccess.get_file_as_string(path)) != OK or not json.data is Dictionary:
 		push_error("Save slot '%s' is not valid JSON." % slot)
 		return {}
-	return migrate(json.data)
+	var data: Dictionary = json.data
+	return migrate(data)
 
 
 ## Brings a save from any older version up to SAVE_VERSION, one step at a time.
 func migrate(data: Dictionary) -> Dictionary:
-	var version := int(data.get("version", 0))
+	var version := JsonValue.as_int(data.get("version", 0))
 	if version > SAVE_VERSION:
 		push_error("Save is version %d but this build reads up to %d." % [version, SAVE_VERSION])
 		return {}

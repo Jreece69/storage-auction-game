@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Vehicles",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "max_weight", "max_volume", "price"],
+    "properties": {
+      "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+      "max_weight": {"description": "Pounds", "type": "integer", "minimum": 1},
+      "max_volume": {"description": "Slots", "type": "integer", "minimum": 1},
+      "price": {"type": "integer", "minimum": 0}
+    }
+  }
+}

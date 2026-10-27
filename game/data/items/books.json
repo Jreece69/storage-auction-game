@@ -1,0 +1,5 @@
+[
+  {"id": "box_of_paperbacks", "category": "books", "rarity": "common", "value": [8, 20], "weight": 25, "size": 1, "condition": ["worn", "good"]},
+  {"id": "stack_of_comic_books", "category": "books", "rarity": "uncommon", "value": [40, 150], "weight": 6, "size": 1, "condition": ["worn", "mint"]},
+  {"id": "leather_bound_atlas", "category": "books", "rarity": "rare", "value": [180, 420], "weight": 10, "size": 1, "condition": ["worn", "mint"]}
+]

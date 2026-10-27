@@ -1,0 +1,20 @@
+[
+  {
+    "id": "attic_clearout",
+    "categories": {"furniture": 4, "decor": 4, "books": 3, "toys": 3},
+    "item_count": [5, 8],
+    "junk_weight": [60, 160]
+  },
+  {
+    "id": "gamers_den",
+    "categories": {"electronics": 4, "games": 5, "toys": 2, "books": 1},
+    "item_count": [5, 8],
+    "junk_weight": [30, 100]
+  },
+  {
+    "id": "contractors_garage",
+    "categories": {"tools": 6, "outdoor": 3, "electronics": 1, "furniture": 1},
+    "item_count": [5, 9],
+    "junk_weight": [80, 220]
+  }
+]

@@ -1,0 +1,6 @@
+[
+  {"id": "box_of_picture_frames", "category": "decor", "rarity": "common", "value": [10, 30], "weight": 12, "size": 1, "condition": ["broken", "good"]},
+  {"id": "ceramic_rooster", "category": "decor", "rarity": "common", "value": [8, 25], "weight": 4, "size": 1, "condition": ["broken", "mint"]},
+  {"id": "hand_painted_landscape", "category": "decor", "rarity": "uncommon", "value": [60, 180], "weight": 8, "size": 2, "condition": ["worn", "mint"]},
+  {"id": "art_deco_mantel_clock", "category": "decor", "rarity": "rare", "value": [200, 480], "weight": 9, "size": 1, "condition": ["broken", "mint"]}
+]

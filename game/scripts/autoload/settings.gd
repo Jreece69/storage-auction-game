@@ -16,7 +16,8 @@ func _ready() -> void:
 func load_settings() -> void:
 	var config := ConfigFile.new()
 	if config.load(PATH) == OK:
-		master_volume = clampf(float(config.get_value("audio", "master_volume", master_volume)), 0.0, 1.0)
+		var volume: float = config.get_value("audio", "master_volume", master_volume)
+		master_volume = clampf(volume, 0.0, 1.0)
 	apply()
 
 

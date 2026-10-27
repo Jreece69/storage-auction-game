@@ -1,0 +1,6 @@
+[
+  {"id": "tube_television", "category": "electronics", "rarity": "common", "value": [20, 50], "weight": 60, "size": 3, "condition": ["broken", "good"]},
+  {"id": "chrome_boombox", "category": "electronics", "rarity": "common", "value": [30, 80], "weight": 10, "size": 1, "condition": ["broken", "mint"]},
+  {"id": "beige_desktop_tower", "category": "electronics", "rarity": "common", "value": [15, 45], "weight": 25, "size": 2, "condition": ["broken", "good"]},
+  {"id": "reel_to_reel_deck", "category": "electronics", "rarity": "uncommon", "value": [120, 300], "weight": 30, "size": 2, "condition": ["broken", "mint"]}
+]
