@@ -14,6 +14,9 @@ in. This list errs on the side of including everything.
 |---|---|---|---|
 | Game code | `game/scripts/`, `game/scenes/` | Claude Code (Anthropic) | Written from Jack's plan; checked by the test suite |
 | UI text: menu labels and tagline | `game/data/translations/strings.csv` | Claude Code | Placeholder copy |
+| Item names and flavor text (30 items) | `game/data/translations/strings.csv`, ids in `game/data/items/` | Claude Code | Invented; no real brands or people |
+| Rival names, theme and zone names | `game/data/translations/strings.csv` | Claude Code | Invented |
+| Tuning numbers (values, budgets, prices) | `game/data/*.json` | Claude Code | First pass, checked by the balance sim |
 | Placeholder app icon | `game/icon.svg` | Claude Code | Hand-written SVG; to be replaced before launch |
 | Placeholder UI theme | `game/assets/ui/theme.tres` | Claude Code | Default font size only |
 

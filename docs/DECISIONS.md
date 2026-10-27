@@ -31,3 +31,19 @@ Jack" (see `DESIGN.md`) is never decided here; it is asked.
 - **Lint is the project-integrity test (`tools/lint.sh`), not Godot's `--check-only`.** `--check-only` doesn't load autoloads, so valid scripts that use `GameState` fail there.
 - **Cloud sessions install Godot in a SessionStart hook** (`.claude/hooks/session-start.sh`, synchronous). A new phone session can run the tests at once, and it never races a half-finished install.
 - **"Protect main" is deferred.** Branch protection on a private repo needs a paid GitHub plan, and spending is Jack's call. Until then, nothing merges to `main` until CI is green on its branch.
+
+## Phase 1: Core loop prototype (2026-10-27)
+
+### Content (branch `phase-1/content`)
+
+- **A sixth autoload, `Content`, loads all game data in `_init`.** It's ready before any other autoload, and a data mistake becomes a boot error, which fails the boot check.
+- **Seeded streams moved into a plain `RngStreams` class; the `Rng` autoload wraps one.** The balance sim and tests make their own streams, so they never shift the game's sequence.
+- **Data files are checked by real JSON Schema files (a supported subset) in `data/schemas/`.** Editors already understand the format, so content can be edited with autocomplete and errors.
+- **The checker is our own ~150 lines of GDScript, not a library.** No third-party code to license, and it reports errors as "items/toys.json[0].weight: expected integer, got string".
+- **Items are one JSON file per category.** 300 items in one file would be unreadable; a folder of category files stays small.
+- **Display text is keyed from ids (`ITEM_<ID>`, `ITEM_<ID>_DESC`, ...), not stored in the data.** Content stays translatable without a second name field, and a test catches a missing translation.
+- **All four `unsafe_*` warnings are compile errors, with `JsonValue` for untyped data.** Warnings never show in CI logs, so only errors actually enforce "static types everywhere".
+- **Tests run through `tools/gut.sh`, which fails on any script that didn't compile.** GUT skips a test file it can't load and still reports success; that happened on this branch and would have hidden two test files.
+- **`Weighted.pick` walks keys in alphabetical order of their text.** Sorting StringNames compares memory addresses, so picks would change between runs.
+- **Systems get `core/` (shared helpers) and `content/` (definitions, loader) folders** beside the plan's auction/loot/hauling/services/shop/customers/economy.
+- **Phase 1 tuning numbers are a first pass, all in data:** $600 starting cash, $150 weekly rent, zone 1 openers at 30% of contents value, a 400 lb / 8-slot hatchback, 4 shelves of 3 slots. The balance sim (branch 1.5) checks them against the plan's targets.

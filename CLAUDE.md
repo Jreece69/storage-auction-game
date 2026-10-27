@@ -82,10 +82,13 @@ tools/export_windows.sh  # Windows build into build/windows/ (downloads template
 tools/install_godot.sh   # installs the pinned Godot if needed, prints its path
 
 # One test file, or tests whose name contains some text:
-GODOT="$(tools/install_godot.sh)"
-"$GODOT" --headless --path game -s res://addons/gut/gut_cmdln.gd -gexit -gselect=test_rng
-"$GODOT" --headless --path game -s res://addons/gut/gut_cmdln.gd -gexit -gunit_test_name=json
+tools/gut.sh -gselect=test_rng
+tools/gut.sh -gunit_test_name=json
 ```
+
+Always run tests through `tools/gut.sh` (the other scripts do). GUT on its
+own skips a test file that fails to compile and still reports success;
+`gut.sh` fails the run instead.
 
 On Jack's Windows PC: open `game/project.godot` in Godot 4.7.2. The GUT panel
 at the bottom of the editor runs the tests.
@@ -109,26 +112,47 @@ page under Actions.
 
 ## Code conventions
 
-- **Typed GDScript everywhere.** `untyped_declaration` is a compile error
-  (add-ons are exempt). Unsafe-access warnings are on: fix them, don't
-  silence them. Godot style guide: tabs, `snake_case` files, functions and
-  variables, `PascalCase` classes and nodes.
+- **Typed GDScript everywhere.** `untyped_declaration` and the four `unsafe_*`
+  warnings are compile errors (add-ons are exempt). Untyped data (parsed
+  JSON, `Dictionary` values) goes through `JsonValue` (`as_int`, `as_float`,
+  `as_name`, ...) or into a typed variable first: `int(variant)` and passing a
+  Variant to a typed parameter don't compile. GUT asserts count as typed
+  calls, so assert on typed values (`var picked: StringName = ...`).
+  Godot style guide: tabs, `snake_case` files, functions and variables,
+  `PascalCase` classes and nodes.
 - **Layout:**
   - `game/scenes/<area>/`: each `.tscn` with its script beside it. Scenes
     only display state and forward input.
-  - `game/scripts/autoload/`: the five singletons `EventBus`, `Rng`,
+  - `game/scripts/autoload/`: the six singletons `Content`, `EventBus`, `Rng`,
     `Settings`, `GameState`, `SaveManager`. Autoload scripts have no
     `class_name` (it would clash with the singleton name).
   - `game/scripts/systems/<area>/`: all game rules, as plain `RefCounted`
     classes with `class_name` and no node or scene dependencies, so they run
-    and test headless.
-  - `game/data/`: JSON content and `translations/strings.csv`.
+    and test headless. `core/` holds shared helpers (`RngStreams`, `Weighted`,
+    `Money`, `JsonValue`); `content/` holds the content definitions and the
+    `Catalog` loader.
+  - `game/data/`: JSON content, its schemas, and `translations/strings.csv`.
+- **Content:** every item, theme, zone, rival, customer type and vehicle is a
+  JSON entry in `game/data/` (items are one file per category in
+  `data/items/`), checked against `data/schemas/<file>.schema.json` (a subset
+  of JSON Schema) and then cross-checked by `Catalog` (theme categories have
+  items, zone rivals exist, ranges run low to high, and so on). The `Content`
+  autoload loads it all at startup; any problem is a boot error. Systems take
+  the `Catalog` or the definitions they need as arguments, never the
+  autoload. Display text is keyed from the id: `ITEM_<ID>` and
+  `ITEM_<ID>_DESC`, `THEME_<ID>`, `ZONE_<ID>`, `RIVAL_<ID>`,
+  `PERSONALITY_<P>`, `CUSTOMER_<ID>`, `VEHICLE_<ID>`, `CATEGORY_<C>`,
+  `RARITY_<R>`, `CONDITION_<C>`. `test_catalog.gd` fails if any is missing.
 - **Systems talk through `EventBus` signals** with plain-data arguments, never
   through direct references to each other.
-- **Randomness only through `Rng.stream(&"system")`.** Never the global
-  `randi()`, `randf()`, `randomize()`, `Array.shuffle()` or
-  `Array.pick_random()`; they use Godot's global generator and break replays.
-  Shuffle with the stream's generator instead.
+- **Randomness only through seeded streams.** The game uses
+  `Rng.stream(&"system")`; systems take a `RandomNumberGenerator` (or an
+  `RngStreams`) as an argument so tests and the balance sim can pass their
+  own. Never the global `randi()`, `randf()`, `randomize()`,
+  `Array.shuffle()` or `Array.pick_random()`; they use Godot's global
+  generator and break replays. Weighted choices go through `Weighted.pick`,
+  which walks keys in alphabetical order (sorting StringNames directly
+  compares memory addresses, which differ from run to run).
 - **Money is whole dollars in `int`.**
 - **Saves:** `SaveManager` writes JSON to `user://saves/` with a `version`.
   When the format changes, bump `SAVE_VERSION` and add a step in
