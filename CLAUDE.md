@@ -1,15 +1,20 @@
 # Storage Auction Game — project brain
 
-An original single-player storage-auction tycoon for PC, sold on Steam (Windows
-first, Steam Deck Verified as a goal). The player wins lockers at auction,
-hauls and appraises the contents, sells from their own shop, and grows from a
-junkyard hustler into a top dealer. The hook: **every auction is a poker
-hand**. Rival bidders have personalities, budgets and visible tells, so
-winning is a read, not a timing bar.
+An original storage-auction tycoon for PC, sold on Steam (Windows first,
+Steam Deck Verified as a goal), played solo or as an **online co-op crew of up
+to 4 friends**. The crew wins lockers at auction, hauls and appraises the
+contents, sells from their own shop, and grows from a junkyard hustle into a
+top dealer. The hook: **every auction is a poker hand**. Rival bidders have
+personalities, budgets and visible tells, so winning is a read, not a timing
+bar. In co-op, everyone has their own paddle and one shared bank, which means
+you can outbid your own friend.
 
 **The full plan is [`docs/DESIGN.md`](docs/DESIGN.md)** (copied from Jack's PDF
-in `docs/original/`). Read it before starting a phase. This file is the
-summary, the current status, and the conventions every session follows.
+in `docs/original/`). **Co-op is Jack's 2026-10-27 change to that plan:
+[`docs/MULTIPLAYER.md`](docs/MULTIPLAYER.md)** has the design and the revised
+roadmap, and wins wherever the two disagree. Read both before starting a
+phase. This file is the summary, the current status, and the conventions
+every session follows.
 
 Owner: **Jack**. Not technical, often on his phone. Explain plainly, keep his
 steps to a minimum, and decide everything that isn't reserved for him.
@@ -19,23 +24,27 @@ steps to a minimum, and decide everything that isn't reserved for him.
 | Phase | State |
 |---|---|
 | 0 Setup | **Done 2026-10-27.** CI green on `main` (25 tests, boot check, Windows export); boots to the title screen |
-| 1 Core loop prototype (graybox) | **Next** |
-| 2 Vertical slice | Not started. Jack starts the Steamworks signup during this phase |
-| 3 Steam setup and demo | Not started |
-| 4 Content to v1.0 | Not started |
-| 5 Polish and launch | Not started |
+| 1 Core loop prototype (graybox) | **In progress.** All the rules are built and tested, crew-ready (152 tests); screens, balance sim and export smoke test left |
+| 2 Co-op foundation (new) | Not started. 2 to 4 players online (host or join by IP) through the graybox day |
+| 3 Vertical slice | Not started. Shared 3D scenes with avatars. Jack starts the Steamworks signup during this phase |
+| 4 Steam setup and demo | Not started. Steam lobbies, invites and voice |
+| 5 Content to v1.0 | Not started |
+| 6 Polish and launch | Not started |
 
 Update this table when a phase closes, then post a short status to Jack:
 what works, what's next, any blocker.
 
 **Phase 1 checklist** (gate: a full day plays start to finish with
 placeholder art, and Jack has played a Windows build from the CI artifacts):
-data schemas plus 30 items, 3 locker themes, 1 zone, 3 rivals (Rookie, Shark,
-Collector); auction logic with unit tests (rival max bid, countdown reset,
-budgets), then a graybox auction scene; loot roll and a basic reveal; haul
-with a capacity check, shop with 4 shelves, one customer type, simple offer
-and counter; day loop, end-of-day summary, save and load; first balance sim
-(a bot plays 30 in-game days and reports cash over time).
+
+- Done: data schemas plus 30 items, 3 locker themes, 1 zone, 3 rivals
+  (Rookie, Shark, Collector); auction logic with unit tests (rival max bid,
+  countdown reset, budgets); loot roll; haul with a capacity check, shop with
+  4 shelves, one customer type, offer and counter; day loop, end-of-day
+  summary, save and load; rules for a crew of 1 to 4.
+- Left: graybox screens for the whole day (title, map, auction with a basic
+  reveal, haul, shop, summary); first balance sim (a bot plays 30 in-game
+  days and reports cash over time); a smoke test of the exported build.
 
 ## Jack's working rules
 
@@ -62,11 +71,11 @@ and counter; day loop, end-of-day summary, save and load; first balance sim
 
 | Decision | Needed by | Default until he decides |
 |---|---|---|
-| Game title | Phase 3, before the store page | Working title; propose 5 names with Steam, web and USPTO conflict checks |
-| Price | Phase 3 | None (plan suggests $9.99 to $14.99) |
+| Game title | Phase 4, before the store page | Working title; propose 5 names with Steam, web and USPTO conflict checks |
+| Price | Phase 4 | None (plan suggests $9.99 to $14.99; co-op games like this usually sell under $10 to $15) |
 | Any spending: assets, commissions, tools, Steam fee, GitHub plan | Before each purchase | Free CC0 assets only |
 | Making anything public: repo, store page, demo, posts | Before it happens | Everything private |
-| Dates for Coming Soon, demo and launch | Phase 3 | None |
+| Dates for Coming Soon, demo and launch | Phase 4 | None |
 | Selling as an individual or a company | Steamworks signup | None |
 | Changing a pillar or cutting a v1.0 feature | When it comes up | Keep the plan |
 
@@ -173,6 +182,28 @@ page under Actions.
 - **Exports** leave out `tests/` and `addons/gut/` (`export_presets.cfg`). The
   Windows build is a single `.exe` with the game packed inside.
 
+## Co-op conventions
+
+The design is in [`docs/MULTIPLAYER.md`](docs/MULTIPLAYER.md). Every system is
+written for a crew of 1 to 4, starting now, even before the networking exists.
+
+- **The crew** is seated `p1` (the host) to `p4`; `Crew` turns seats into ids.
+  Solo is a crew of one, with the same rules. Anything a player does takes the
+  acting member's id (`auction.raise(member)`, `complete_sale(customer,
+  seller)`), and anything worth an award is credited to them in the day's
+  `MemberLedger`.
+- **The host is the referee.** Only the host runs `RunController` and rolls
+  dice; other players send requests and display what the host reports. So
+  game state changes only through `RunController` and the systems, never in a
+  scene, and systems report what happened as plain-data events (`Auction`
+  already does) that the host can broadcast as they are.
+- **Scenes read the local player from `GameState.local_member`** and
+  `GameState.local_seat()`, never assume `p1`.
+- **Crew size never changes what a seed rolls.** Per-seat data (like the four
+  peek sets in `Locker`) is always rolled for all four seats.
+- **Crew composition is not saved.** The business, bank and day live in the
+  host's save; friends come and go.
+
 ## Assets and licensing
 
 - Every third-party asset gets a line in `CREDITS.md` (name, source URL,
@@ -191,4 +222,4 @@ page under Actions.
   needs a paid plan (Pro or Team), which is Jack's call. Until then, the rule
   is followed by hand: merge to `main` only after CI is green on the branch.
 - The placeholder icon (`game/icon.svg`) and UI theme
-  (`game/assets/ui/theme.tres`) are replaced in Phase 2.
+  (`game/assets/ui/theme.tres`) are replaced in Phase 3, the vertical slice.

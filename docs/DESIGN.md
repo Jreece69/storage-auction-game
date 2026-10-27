@@ -6,6 +6,12 @@ Oct 27, 2026 · @Jack
 > [`original/build_plan_2026-10-27.pdf`](original/build_plan_2026-10-27.pdf).
 > It is the source of truth for scope and rules. Decisions taken while
 > building are logged in [`DECISIONS.md`](DECISIONS.md), not edited in here.
+>
+> **Changed by Jack on 2026-10-27: the game is now co-op for 1 to 4 players,
+> online.** Where this plan says single-player, no multiplayer or no walking
+> character, [`MULTIPLAYER.md`](MULTIPLAYER.md) wins, and its revised roadmap
+> replaces the phase numbers below (a new Phase 2, "Co-op foundation", shifts
+> the later phases up by one).
 
 ## How to use this doc
 
