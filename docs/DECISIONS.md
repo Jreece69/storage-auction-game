@@ -5,6 +5,7 @@ Jack" (see `DESIGN.md`) is never decided here; it is asked.
 
 ## Phase 0: Setup (2026-10-27)
 
+- **The repo is `Jreece69/storage-auction-game`, private.** It's the GitHub account Claude Code is connected to; Jack created it there (Claude's GitHub app can't create repos).
 - **Godot 4.7.2 stable, pinned in `tools/GODOT_VERSION`.** It was the latest 4.7.x tag; one file that CI and every script read means the version can't drift.
 - **GUT 9.7.1 for tests, not gdUnit4.** Its 9.7 line is built for Godot 4.7.x, it has a plain headless command line, and it fails a test on any engine error by default.
 - **GUT is vendored in `game/addons/gut/`.** The editor's test panel and CI both work from a plain clone; the export leaves it out.
@@ -27,4 +28,6 @@ Jack" (see `DESIGN.md`) is never decided here; it is asked.
 - **Only builds from `main` are uploaded, and only the newest three are kept.** The free plan has 500 MB of artifact storage; when it fills, uploads fail and CI goes red.
 - **CI pulls LFS files through the Actions cache.** Once art arrives, this stops CI from spending the account's LFS bandwidth on every run.
 - **The boot check runs the real main scene for 300 frames with no window, and fails on any error line.** It proves "boots to a title screen" on a machine with no display.
+- **Lint is the project-integrity test (`tools/lint.sh`), not Godot's `--check-only`.** `--check-only` doesn't load autoloads, so valid scripts that use `GameState` fail there.
+- **Cloud sessions install Godot in a SessionStart hook** (`.claude/hooks/session-start.sh`, synchronous). A new phone session can run the tests at once, and it never races a half-finished install.
 - **"Protect main" is deferred.** Branch protection on a private repo needs a paid GitHub plan, and spending is Jack's call. Until then, nothing merges to `main` until CI is green on its branch.

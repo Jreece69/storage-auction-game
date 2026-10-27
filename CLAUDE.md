@@ -77,6 +77,7 @@ installs the pinned Godot automatically.
 
 ```bash
 tools/test.sh            # import + every GUT test + boot check (what CI runs)
+tools/lint.sh            # quick check: every script compiles, scenes load, text uses keys
 tools/export_windows.sh  # Windows build into build/windows/ (downloads templates once)
 tools/install_godot.sh   # installs the pinned Godot if needed, prints its path
 
