@@ -38,6 +38,11 @@ jobs:
       - name: Import, unit tests, boot check
         run: tools/test.sh
 
+      # A host and three friends, each a separate copy of the game, play a
+      # co-op day over ENet on localhost and must agree on every detail.
+      - name: Co-op day over the network
+        run: tools/coop_smoke.sh 4
+
       # A short balance sim: proves the sim still runs, and puts its report on
       # the run's summary page. The full 200-seed run is tools/balance_sim.sh.
       - name: Balance sim

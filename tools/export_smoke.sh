@@ -33,8 +33,8 @@ if grep -E "^(ERROR|SCRIPT ERROR|USER ERROR):" "$log" > /dev/null; then
 fi
 
 echo "== Playing day 1 in the exported game"
-SHOT_RUNNER="$ROOT/tools/screenshots/play_a_day.gd" \
-  "$GODOT" --headless --main-pack "$PCK" -s "$ROOT/tools/screenshots/boot.gd" > "$log" 2>&1 || fail "the day didn't play."
+RUNNER="$ROOT/tools/screenshots/play_a_day.gd" \
+  "$GODOT" --headless --main-pack "$PCK" -s "$ROOT/tools/boot_runner.gd" > "$log" 2>&1 || fail "the day didn't play."
 if grep -E "^(ERROR|SCRIPT ERROR|USER ERROR):" "$log" > /dev/null; then
   fail "Godot reported errors while playing."
 fi

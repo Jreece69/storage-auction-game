@@ -3,7 +3,8 @@ extends Node
 ## screenshot of every screen to $SHOT_DIR (tools/screenshots.sh). With no
 ## $SHOT_DIR it only plays, which is how tools/export_smoke.sh checks an
 ## exported build. It wins the first locker (with extra cash so any seed
-## works), sits out the rest, sells what it can, and closes up.
+## works), sits out the rest, sells what it can, and closes up. Started by
+## tools/boot_runner.gd.
 
 var _app: AppShell
 var _dir: String

@@ -6,6 +6,10 @@ extends Node
 ##
 ## Scenes make the local player's moves with [method act], which names the
 ## move, never the player: the crew member is always this machine's.
+##
+## In co-op the host's machine holds the real run. A joined player's machine
+## holds a copy from the host (see Session), shows it, and sends its moves
+## to the host instead of making them.
 
 var controller: RunController = null
 var flow: DayFlow = null
@@ -53,15 +57,33 @@ func end_run() -> void:
 
 
 ## Makes a move for this machine's player (see DayFlow.handle). Returns
-## whether it went through.
+## whether it went through. A joined player's move goes to the host, and
+## counts as going through: the host's next update shows what happened.
 func act(command: String, args: Dictionary = {}) -> bool:
 	if flow == null:
 		return false
+	if Session.is_client():
+		Session.send_move(command, args)
+		return true
 	return flow.handle(local_member, command, args)
 
 
+## Shows a copy of the host's day (see Session). The copy never runs the
+## rules; only its clocks tick, between the host's updates.
+func adopt_copy(copy: DayFlow) -> void:
+	controller = copy.controller
+	flow = copy
+	flow.changed.connect(EventBus.flow_changed.emit)
+	EventBus.cash_changed.emit(controller.run.cash)
+	EventBus.flow_changed.emit()
+
+
 func _process(delta: float) -> void:
-	if flow != null:
+	if flow == null:
+		return
+	if Session.is_client():
+		flow.tick_clocks(delta)
+	else:
 		flow.tick(delta)
 
 

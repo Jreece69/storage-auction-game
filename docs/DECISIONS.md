@@ -130,3 +130,14 @@ design and the revised roadmap are in [`MULTIPLAYER.md`](MULTIPLAYER.md).
 - **Everything live copies to plain data (`to_dict`/`from_dict` on lockers, the day, auctions, customers, counters, the flow), and `DayFlow.mirror()` builds another player's copy.** The host sends state, not instructions to replay, so copies can't drift. Rival max bids and customer limits stay on the host.
 - **The app shell shows the screen for the day's stage.** Every player in a crew sees the same screen at the same time, and screens no longer move each other on.
 - **The game saves when the day closes (`DayFlow.day_closed`), from `GameState`, not from a screen.** Only the host will save.
+
+### The network session (branch `phase-2/session`)
+
+- **`Session` (autoload) hosts or joins over ENet; the host's machine runs the real day and everyone else shows a copy.** The host is the referee, as `MULTIPLAYER.md` planned, so copies can't drift.
+- **The host sends the run, today and the flow as three channels, only when they change, plus the clocks ten times a second while they run.** Small updates, and a copy's clocks tick on their own in between.
+- **A joined player's move goes to the host as a command; their screen counts it as done and the host's next update shows the result.** No waiting on the network to press a button.
+- **Seats go p2 to p4 in the order friends say hello; a fifth is turned away, as is a different game version.** Simple and fair.
+- **Friends who join mid-day watch until the next day starts, then join the crew.** The crew only changes on the map, so a day's votes and counters never change shape under the players.
+- **A player who drops out passes on the locker and lets their customer go; if the host drops out, the session ends for everyone.** No host migration in v1, as planned; the save is at most a day old.
+- **The host only sends to players whose connection is fully up, one by one, and doesn't relay connection news between players.** Found by the co-op smoke test: two friends leaving at once made broadcasts to the half-gone one fail.
+- **`tools/coop_smoke.sh` plays a co-op day with a host and up to three bot friends, each a separate copy of the game, over ENet on localhost, and checks they all agree.** CI runs it with a full crew of four on every push.

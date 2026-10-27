@@ -20,10 +20,10 @@ fi
 log="$(mktemp)"
 trap 'rm -f "$log"' EXIT
 
-SHOT_RUNNER="$ROOT/tools/screenshots/play_a_day.gd" SHOT_DIR="$OUT" \
+RUNNER="$ROOT/tools/screenshots/play_a_day.gd" SHOT_DIR="$OUT" \
   xvfb-run -a -s "-screen 0 1280x800x24" \
   "$GODOT" --path "$ROOT/game" --rendering-method gl_compatibility --rendering-driver opengl3 \
-  --resolution 1280x800 -s "$ROOT/tools/screenshots/boot.gd" 2>&1 | tee "$log" | grep "^shot " || true
+  --resolution 1280x800 -s "$ROOT/tools/boot_runner.gd" 2>&1 | tee "$log" | grep "^shot " || true
 
 if grep -E "^(SCRIPT ERROR|USER ERROR):" "$log" > /dev/null; then
   grep -A2 -E "^(SCRIPT ERROR|USER ERROR):" "$log" >&2

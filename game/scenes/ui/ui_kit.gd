@@ -111,14 +111,13 @@ static func rival_name(rival_id: StringName) -> String:
 	return text("RIVAL_" + String(rival_id).to_upper())
 
 
-## "You" for this machine's player, "Player 2" for a crewmate, otherwise the
-## rival's name.
+## "You" for this machine's player, a crewmate's name (or "Player 2"),
+## otherwise the rival's name.
 static func bidder_name(bidder: StringName) -> String:
 	if bidder == GameState.local_member:
 		return text("UI_YOU")
-	var seat := Crew.seat_of(bidder)
-	if seat >= 0:
-		return fmt("UI_PLAYER", [seat + 1])
+	if Crew.seat_of(bidder) >= 0:
+		return Session.name_of(bidder)
 	return rival_name(bidder)
 
 

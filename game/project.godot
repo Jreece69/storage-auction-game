@@ -25,6 +25,7 @@ Rng="*res://scripts/autoload/rng.gd"
 Settings="*res://scripts/autoload/settings.gd"
 GameState="*res://scripts/autoload/game_state.gd"
 SaveManager="*res://scripts/autoload/save_manager.gd"
+Session="*res://scripts/autoload/session.gd"
 
 [debug]
 
