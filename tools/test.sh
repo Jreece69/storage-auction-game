@@ -5,12 +5,13 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GODOT="${GODOT:-$("$ROOT/tools/install_godot.sh")}"
+export GODOT
 
 echo "== Importing assets"
 "$GODOT" --headless --path "$ROOT/game" --import
 
 echo "== Unit tests"
-"$GODOT" --headless --path "$ROOT/game" -s res://addons/gut/gut_cmdln.gd -gexit
+"$ROOT/tools/gut.sh"
 
 echo "== Boot check"
-GODOT="$GODOT" "$ROOT/tools/boot_check.sh"
+"$ROOT/tools/boot_check.sh"

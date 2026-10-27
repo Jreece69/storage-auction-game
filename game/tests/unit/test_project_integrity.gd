@@ -15,7 +15,8 @@ func test_main_scene_is_the_title_screen() -> void:
 
 
 func test_every_script_compiles() -> void:
-	var scripts := _files_under("res://scripts", ".gd") + _files_under("res://scenes", ".gd")
+	# Test scripts too: GUT skips a test file that fails to compile.
+	var scripts := _files_under("res://scripts", ".gd") + _files_under("res://scenes", ".gd") + _files_under("res://tests", ".gd")
 	assert_gt(scripts.size(), 0, "found game scripts to check")
 	for path in scripts:
 		assert_not_null(load(path) as Script, "%s should compile" % path)

@@ -35,7 +35,7 @@ func test_loading_resumes_the_same_random_rolls() -> void:
 func test_save_file_records_its_version() -> void:
 	SaveManager.save_game(SLOT)
 	var raw: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(SaveManager.slot_path(SLOT)))
-	assert_eq(int(raw["version"]), SaveManager.SAVE_VERSION)
+	assert_eq(JsonValue.as_int(raw["version"]), SaveManager.SAVE_VERSION)
 
 
 func test_saving_leaves_no_temp_file_behind() -> void:
