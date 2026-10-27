@@ -84,7 +84,8 @@ static func item(uid: int, def_id: StringName, base_value: int, condition: Strin
 	return ItemInstance.new(uid, def_id, base_value, condition, dirty)
 
 
-## A hand-built locker holding [param items] and [param junk_weight] pounds of junk.
+## A hand-built locker holding [param items] and [param junk_weight] pounds
+## of junk. Every crew seat can see everything.
 static func locker(items: Array[ItemInstance], junk_weight: int = 0) -> Locker:
 	var built := Locker.new()
 	built.lot_number = 1
@@ -92,6 +93,9 @@ static func locker(items: Array[ItemInstance], junk_weight: int = 0) -> Locker:
 	built.theme_id = &"mixed"
 	built.items = items
 	built.junk_weight = junk_weight
+	var everything := PackedInt32Array()
 	for one in items:
-		built.visible_uids.append(one.uid)
+		everything.append(one.uid)
+	for seat in Crew.MAX:
+		built.visible_sets.append(everything)
 	return built

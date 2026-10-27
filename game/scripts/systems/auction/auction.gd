@@ -9,17 +9,20 @@ extends RefCounted
 ## next bid is within their max; otherwise they drop out. A jump bid can
 ## scare some rivals off on the spot.
 ##
+## The human side is a crew of one to four (see Crew), each with their own
+## paddle and one shared bank. Crewmates can outbid each other: it's allowed,
+## it only raises what the crew pays, and it's flagged as friendly fire.
+##
 ## Calls return what happened, in order, as plain dictionaries for the scene:
-##   {"type": "bid", "bidder": id, "amount": int, "jump": bool}
+##   {"type": "bid", "bidder": id, "amount": int, "jump": bool,
+##    "friendly_fire": bool}                 friendly fire: crew over crew
 ##   {"type": "call", "stage": 1 or 2}      going once, going twice
 ##   {"type": "fold", "bidder": id}
 ##   {"type": "sold", "bidder": id, "amount": int}
 ##   {"type": "unsold"}
-## The player's id is [constant PLAYER].
 
 enum State { OPEN, SOLD, UNSOLD }
 
-const PLAYER: StringName = &"player"
 const NOBODY: StringName = &""
 ## Two events closer together than this count as simultaneous.
 const EPSILON: float = 0.000001
@@ -34,9 +37,14 @@ var high_bidder: StringName = NOBODY
 ## Seconds until the hammer falls.
 var countdown: float
 var bidders: Array[RivalBidder] = []
-## The most the player can spend; their bids never go above it.
-var player_cash: int
-var player_out: bool = false
+## The crew members bidding here, in seat order.
+var crew: Array[StringName] = []
+## The crew's bank: no crew bid goes above it.
+var crew_cash: int
+## Crew members who have passed on this locker.
+var crew_out: Array[StringName] = []
+## How many times each crew member outbid a crewmate here.
+var friendly_fire: Dictionary[StringName, int] = {}
 var bid_count: int = 0
 
 var _rules: AuctionRules
@@ -44,12 +52,13 @@ var _rng: RandomNumberGenerator
 var _calls_made: int = 0
 
 
-func _init(rules: AuctionRules, p_opening_price: int, p_bidders: Array[RivalBidder], p_player_cash: int, rng: RandomNumberGenerator) -> void:
+func _init(rules: AuctionRules, p_opening_price: int, p_bidders: Array[RivalBidder], p_crew: Array[StringName], p_crew_cash: int, rng: RandomNumberGenerator) -> void:
 	_rules = rules
 	_rng = rng
 	opening_price = p_opening_price
 	bidders = p_bidders
-	player_cash = p_player_cash
+	crew = p_crew
+	crew_cash = p_crew_cash
 	countdown = rules.countdown_seconds
 	_schedule_rivals()
 
@@ -58,9 +67,18 @@ func is_open() -> bool:
 	return state == State.OPEN
 
 
-## Who won: [constant PLAYER], a rival's id, or [constant NOBODY].
+func is_crew(bidder: StringName) -> bool:
+	return crew.has(bidder)
+
+
+## Who won: a crew member, a rival's id, or [constant NOBODY].
 func winner() -> StringName:
 	return high_bidder if state == State.SOLD else NOBODY
+
+
+## Whether the crew won, whichever member held the last bid.
+func crew_won() -> bool:
+	return state == State.SOLD and is_crew(high_bidder)
 
 
 ## The smallest bid the auctioneer will take right now.
@@ -76,30 +94,39 @@ func jump_bid() -> int:
 	return base + _rules.jump_amount(base)
 
 
-func can_player_bid(amount: int) -> bool:
-	return is_open() and not player_out and high_bidder != PLAYER and amount <= player_cash
+## Whether [param member] may bid [param amount] now. Nobody can raise their
+## own bid, but anyone can raise a crewmate's.
+func can_bid(member: StringName, amount: int) -> bool:
+	return is_open() and is_crew(member) and not crew_out.has(member) and high_bidder != member and amount <= crew_cash
 
 
-func player_raise() -> Array[Dictionary]:
+func raise(member: StringName) -> Array[Dictionary]:
 	var events: Array[Dictionary] = []
 	var amount := next_bid()
-	if can_player_bid(amount):
-		_place_bid(PLAYER, amount, false, events)
+	if can_bid(member, amount):
+		_place_bid(member, amount, false, events)
 	return events
 
 
 ## A big raise meant to scare rivals off.
-func player_jump() -> Array[Dictionary]:
+func jump(member: StringName) -> Array[Dictionary]:
 	var events: Array[Dictionary] = []
 	var amount := jump_bid()
-	if can_player_bid(amount):
-		_place_bid(PLAYER, amount, true, events)
+	if can_bid(member, amount):
+		_place_bid(member, amount, true, events)
 	return events
 
 
-## The player drops out of this auction; the rivals settle it between them.
-func player_pass() -> void:
-	player_out = true
+## [param member] stops bidding on this locker. Holding the high bid, they
+## can still win it at that price.
+func pass_out(member: StringName) -> void:
+	if is_crew(member) and not crew_out.has(member):
+		crew_out.append(member)
+
+
+## Every crew member has passed; the rivals settle it between them.
+func all_crew_out() -> bool:
+	return crew_out.size() >= crew.size()
 
 
 ## Runs [param delta] seconds of auction time.
@@ -125,8 +152,8 @@ func advance(delta: float) -> Array[Dictionary]:
 	return events
 
 
-## Runs the auction until the hammer falls, for when the player has passed
-## or for the balance sim.
+## Runs the auction until the hammer falls, for when the crew has passed or
+## for the balance sim.
 func run_to_end() -> Array[Dictionary]:
 	var events: Array[Dictionary] = []
 	var steps := 0
@@ -136,14 +163,17 @@ func run_to_end() -> Array[Dictionary]:
 	return events
 
 
-func _place_bid(who: StringName, amount: int, jump: bool, events: Array[Dictionary]) -> void:
+func _place_bid(who: StringName, amount: int, is_jump: bool, events: Array[Dictionary]) -> void:
+	var over_crewmate := is_crew(who) and is_crew(high_bidder)
+	if over_crewmate:
+		friendly_fire[who] = (friendly_fire[who] if friendly_fire.has(who) else 0) + 1
 	price = amount
 	high_bidder = who
 	bid_count += 1
 	countdown = _rules.countdown_seconds
 	_calls_made = 0
-	events.append({"type": "bid", "bidder": who, "amount": amount, "jump": jump})
-	if jump:
+	events.append({"type": "bid", "bidder": who, "amount": amount, "jump": is_jump, "friendly_fire": over_crewmate})
+	if is_jump:
 		_scare_rivals(who, events)
 	_schedule_rivals()
 

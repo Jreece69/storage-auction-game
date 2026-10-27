@@ -25,14 +25,26 @@ func test_locker_follows_its_theme() -> void:
 		assert_has([&"furniture", &"toys", &"tools"], catalog.items[item.def_id].category)
 
 
-func test_about_a_third_of_the_items_show() -> void:
+func test_each_crew_seat_sees_about_a_third() -> void:
 	for seed_value in 20:
 		var locker := roller.roll_locker(zone, 1, _rng(seed_value), UidCounter.new())
 		var expected := clampi(roundi(locker.items.size() * 0.34), 1, locker.items.size())
-		assert_eq(locker.visible_uids.size(), expected)
-		assert_eq(locker.hidden_count(), locker.items.size() - expected)
-		for uid in locker.visible_uids:
-			assert_not_null(locker.find_item(uid))
+		assert_eq(locker.visible_sets.size(), Crew.MAX, "a set for every seat, whatever the crew size")
+		for seat in Crew.MAX:
+			assert_eq(locker.visible_items_for(seat).size(), expected)
+			assert_eq(locker.hidden_count_for(seat), locker.items.size() - expected)
+
+
+func test_crewmates_see_different_things() -> void:
+	# Across many lockers, seats 0 and 1 must disagree somewhere, and a crew
+	# of four sees at least as much as one player.
+	var differed := false
+	for seed_value in 30:
+		var locker := roller.roll_locker(zone, 1, _rng(seed_value), UidCounter.new())
+		if locker.visible_sets[0] != locker.visible_sets[1]:
+			differed = true
+		assert_gte(locker.visible_to_crew(4).size(), locker.visible_to_crew(1).size())
+	assert_true(differed)
 
 
 func test_opening_price_is_value_times_the_zone_factor() -> void:
@@ -110,7 +122,7 @@ func _rng(seed_value: int) -> RandomNumberGenerator:
 
 
 func _describe(locker: Locker) -> Array:
-	var description := [locker.theme_id, locker.junk_weight, locker.opening_price, locker.visible_uids]
+	var description := [locker.theme_id, locker.junk_weight, locker.opening_price, locker.visible_sets]
 	for item in locker.items:
 		description.append(item.to_dict())
 	return description

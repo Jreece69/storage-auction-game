@@ -17,6 +17,10 @@ var rent: int = 0
 ## The most valuable item found today, by market value.
 var best_find_def: StringName = &""
 var best_find_value: int = 0
+## Who found it.
+var best_find_member: StringName = &""
+## Each crew member's part of the day, by member id.
+var members: Dictionary[StringName, MemberLedger] = {}
 
 
 func _init(p_day: int = 1, p_start_cash: int = 0) -> void:
@@ -28,11 +32,19 @@ func profit() -> int:
 	return sales + scrap + scrap_job - spent_on_lockers - rent
 
 
+## [param member]'s part of the day, started on first use.
+func member(member_id: StringName) -> MemberLedger:
+	if not members.has(member_id):
+		members[member_id] = MemberLedger.new(member_id)
+	return members[member_id]
+
+
 ## Remembers [param def_id] as today's best find if it beats the current one.
-func note_find(def_id: StringName, value: int) -> void:
+func note_find(def_id: StringName, value: int, finder: StringName = &"") -> void:
 	if value > best_find_value:
 		best_find_def = def_id
 		best_find_value = value
+		best_find_member = finder
 
 
 func to_dict() -> Dictionary:
@@ -50,4 +62,13 @@ func to_dict() -> Dictionary:
 		"profit": profit(),
 		"best_find_def": String(best_find_def),
 		"best_find_value": best_find_value,
+		"best_find_member": String(best_find_member),
+		"members": _members_to_dict(),
 	}
+
+
+func _members_to_dict() -> Dictionary:
+	var by_member: Dictionary = {}
+	for member_id: StringName in members:
+		by_member[String(member_id)] = members[member_id].to_dict()
+	return by_member

@@ -72,3 +72,20 @@ Jack" (see `DESIGN.md`) is never decided here; it is asked.
 - **A customer has a hidden limit; any counter within it is accepted, and each counter above it moves their offer halfway to the limit.** Two failed counters and the third sends them away (patience 2, in data). Plays like haggling without being guessable.
 - **"Best find" counts everything in a won locker, even items left behind.** It's about what you found, not what fit in the car.
 - **Save format version 2 (the whole run); version 1 saves migrate.** The first real use of the migration step, tested.
+
+## Scope change by Jack: co-op multiplayer (2026-10-27)
+
+Jack asked for the game to be multiplayer: a crew of 2 to 4 friends ("duo,
+trio, quad"), online, where each player can do their own thing but the group
+gets the classic friendslop laughs together. This reverses two of the plan's
+scope cuts ("no multiplayer in v1.0" and "no walking character"). The full
+design and the revised roadmap are in [`MULTIPLAYER.md`](MULTIPLAYER.md).
+
+### Co-op-ready rules (branch `phase-1/crew-rules`)
+
+- **The business belongs to a crew of one to four, seated p1 (the host) to p4, sharing one bank.** Solo is a crew of one, so there's one set of rules, not two.
+- **Every crew member has their own bidding paddle, and crewmates can outbid each other.** It only raises what the crew pays, and it's logged as friendly fire: built-in comedy, and a stat for the end-of-day awards.
+- **Each crew seat peeks a different random third of a locker.** A crew sees more by comparing notes, so talking is part of the auction.
+- **Four peek sets are always rolled, whatever the crew size.** A seed gives the same lockers solo or in a crew of four.
+- **Wins, spending, sales and finds are credited to the member who made them (`MemberLedger`).** End-of-day awards and blame need per-player numbers.
+- **Crew composition isn't saved.** Friends come and go between sessions; the business and its bank carry on in the host's save.

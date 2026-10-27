@@ -35,12 +35,16 @@ func test_winning_a_locker_costs_its_price() -> void:
 	var auction := controller.open_auction(locker)
 	_win(auction)
 	controller.settle_auction(locker, auction)
-	assert_eq(auction.winner(), Auction.PLAYER)
+	assert_eq(auction.winner(), Crew.HOST)
 	assert_eq(controller.run.cash, 1000 - auction.price)
 	assert_eq(controller.today.ledger.spent_on_lockers, auction.price)
 	assert_eq(controller.today.ledger.lockers_won, 1)
 	assert_eq(controller.today.ledger.best_find_def, &"anvil", "the $200 anvil, even though it won't fit in the van")
-	assert_eq(controller.today.results[1], Auction.PLAYER)
+	assert_eq(controller.today.results[1], Crew.HOST)
+	var credit := controller.today.ledger.member(Crew.HOST)
+	assert_eq(credit.lockers_won, 1)
+	assert_eq(credit.spent_on_lockers, auction.price)
+	assert_eq(controller.today.ledger.best_find_member, Crew.HOST)
 
 
 func test_hauling_brings_items_home_and_scraps_the_rest() -> void:
@@ -65,7 +69,7 @@ func test_skipped_lockers_go_to_the_rivals() -> void:
 	assert_eq(controller.run.cash, 1000)
 	for lot: int in controller.today.results:
 		var winner := controller.today.results[lot]
-		assert_ne(winner, Auction.PLAYER)
+		assert_ne(winner, Crew.HOST)
 
 
 func test_a_rival_win_comes_out_of_their_budget() -> void:
@@ -88,11 +92,12 @@ func test_selling_in_the_afternoon() -> void:
 	var customer := controller.next_customer()
 	assert_eq(customer.item_uid, 901)
 	customer.accept()
-	controller.complete_sale(customer)
+	controller.complete_sale(customer, &"p2")
 	assert_eq(controller.run.cash, 1000 + customer.offer)
 	assert_false(controller.run.items.has(901))
 	assert_false(controller.run.shop.is_shelved(901))
 	assert_eq(controller.today.ledger.items_sold, 1)
+	assert_eq(controller.today.ledger.member(&"p2").sales, customer.offer, "credited to whoever made the sale")
 
 
 func test_no_customers_without_stock_or_after_the_last_one() -> void:
@@ -148,6 +153,27 @@ func test_the_snapshot_is_taken_at_the_start_of_each_day() -> void:
 	assert_eq(JsonValue.as_int(day_two["day"]), 2)
 
 
+func test_a_crew_bids_with_one_bank_and_friendly_fire_is_logged() -> void:
+	controller.crew = Crew.of_size(2)
+	var locker := _cheap_locker_as_lot_one()
+	var auction := controller.open_auction(locker)
+	assert_eq(auction.crew, [&"p1", &"p2"] as Array[StringName])
+	assert_eq(auction.crew_cash, 1000)
+	auction.raise(&"p1")
+	auction.raise(&"p2")
+	_win(auction)
+	controller.settle_auction(locker, auction)
+	assert_eq(controller.today.ledger.member(&"p2").friendly_fire, 1)
+	assert_eq(controller.run.cash, 1000 - auction.price, "one bank pays, whoever won")
+
+
+func test_crew_size_does_not_change_the_lockers() -> void:
+	var solo := RunController.new_run(Fixture.catalog(), RngStreams.new(5))
+	var quad := RunController.new_run(Fixture.catalog(), RngStreams.new(5))
+	quad.crew = Crew.of_size(4)
+	assert_eq(_lockers(solo.start_day()), _lockers(quad.start_day()))
+
+
 func test_same_seed_same_day() -> void:
 	var a := RunController.new_run(Fixture.catalog(), RngStreams.new(5))
 	var b := RunController.new_run(Fixture.catalog(), RngStreams.new(5))
@@ -179,8 +205,8 @@ func _win(auction: Auction) -> void:
 	var steps := 0
 	while auction.is_open() and steps < 10000:
 		steps += 1
-		if auction.high_bidder != Auction.PLAYER and auction.can_player_bid(auction.next_bid()):
-			auction.player_raise()
+		if auction.high_bidder != Crew.HOST and auction.can_bid(Crew.HOST, auction.next_bid()):
+			auction.raise(Crew.HOST)
 		auction.advance(0.25)
 
 

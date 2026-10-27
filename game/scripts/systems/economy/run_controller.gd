@@ -9,6 +9,9 @@ extends RefCounted
 ## settle_auction(), then plan_haul() and finish_haul() for a win (or
 ## skip_locker()) → start_afternoon() → shelve() and set_price() →
 ## next_customer() and complete_sale() until it returns null → end_day().
+##
+## The business belongs to a crew of one to four (see Crew) sharing one
+## bank. Wins and sales are credited to the member who made them.
 
 signal cash_changed(cash: int)
 signal day_started(day: int)
@@ -20,6 +23,9 @@ var catalog: Catalog
 var run: RunState
 var today: DayPlan = null
 var pricing: Pricing
+## Who's playing today, in seat order. Not saved: friends come and go
+## between sessions, while the business carries on.
+var crew: Array[StringName] = Crew.of_size(1)
 ## The run and the random streams as they stood when the current day began.
 ## Saves write this, so loading always resumes at the start of a day.
 var day_start_snapshot: Dictionary = {}
@@ -96,11 +102,12 @@ func start_day() -> DayPlan:
 ## The auction for [param locker], with today's rivals sizing it up.
 func open_auction(locker: Locker) -> Auction:
 	var bidders := today.roster.bidders_for(locker, pricing, _rng.stream(&"auction"))
-	return Auction.new(catalog.economy.auction, locker.opening_price, bidders, maxi(run.cash, 0), _rng.stream(&"auction"))
+	return Auction.new(catalog.economy.auction, locker.opening_price, bidders, crew, maxi(run.cash, 0), _rng.stream(&"auction"))
 
 
-## Records how a finished auction went: the player pays for a win; a rival's
-## win comes out of their budget for the rest of the day.
+## Records how a finished auction went: the crew's bank pays for a win, which
+## is credited to the member holding the last bid; a rival's win comes out of
+## their budget for the rest of the day.
 func settle_auction(locker: Locker, auction: Auction) -> void:
 	if not _need_phase(DayPlan.Phase.MORNING):
 		return
@@ -109,12 +116,17 @@ func settle_auction(locker: Locker, auction: Auction) -> void:
 		return
 	var winner := auction.winner()
 	today.results[locker.lot_number] = winner
-	if winner == Auction.PLAYER:
+	for member_id: StringName in auction.friendly_fire:
+		today.ledger.member(member_id).friendly_fire += auction.friendly_fire[member_id]
+	if auction.crew_won():
 		today.ledger.spent_on_lockers += auction.price
 		today.ledger.lockers_won += 1
+		var credit := today.ledger.member(winner)
+		credit.lockers_won += 1
+		credit.spent_on_lockers += auction.price
 		run.lockers_won += 1
 		for item in locker.items:
-			_note_find(item)
+			_note_find(item, winner)
 		_change_cash(-auction.price)
 	else:
 		today.ledger.lockers_lost += 1
@@ -123,10 +135,11 @@ func settle_auction(locker: Locker, auction: Auction) -> void:
 	locker_settled.emit(locker.lot_number, winner, auction.price if winner != Auction.NOBODY else 0)
 
 
-## The player sits a locker out; the rivals settle it between themselves.
+## The crew sits a locker out; the rivals settle it between themselves.
 func skip_locker(locker: Locker) -> void:
 	var auction := open_auction(locker)
-	auction.player_pass()
+	for member_id in crew:
+		auction.pass_out(member_id)
 	auction.run_to_end()
 	settle_auction(locker, auction)
 
@@ -208,8 +221,9 @@ func next_customer() -> Customer:
 	return Customer.approach(catalog.customers[kind], uid, run.shop.price_of[uid], pricing.market_value(run.items[uid]), shop_rules.price_step, rng)
 
 
-## Hands over an item the customer agreed to buy and takes their money.
-func complete_sale(customer: Customer) -> void:
+## Hands over an item the customer agreed to buy and takes their money,
+## crediting the sale to [param seller].
+func complete_sale(customer: Customer, seller: StringName = Crew.HOST) -> void:
 	if customer.state != Customer.State.SOLD or not run.items.has(customer.item_uid):
 		push_error("No sale to complete for item %d." % customer.item_uid)
 		return
@@ -218,6 +232,9 @@ func complete_sale(customer: Customer) -> void:
 	run.shop.remove(customer.item_uid)
 	today.ledger.sales += price
 	today.ledger.items_sold += 1
+	var credit := today.ledger.member(seller)
+	credit.sales += price
+	credit.items_sold += 1
 	_change_cash(price)
 	item_sold.emit(customer.item_uid, price)
 
@@ -252,9 +269,9 @@ func _need_phase(phase: DayPlan.Phase) -> bool:
 	return true
 
 
-func _note_find(item: ItemInstance) -> void:
+func _note_find(item: ItemInstance, finder: StringName) -> void:
 	var value := pricing.market_value(item)
-	today.ledger.note_find(item.def_id, value)
+	today.ledger.note_find(item.def_id, value, finder)
 	if value > run.best_find_value:
 		run.best_find_def = item.def_id
 		run.best_find_value = value

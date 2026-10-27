@@ -63,19 +63,23 @@ func pick_item(category: StringName, zone: ZoneDef, rng: RandomNumberGenerator) 
 	return catalog.items[id]
 
 
+## Each crew seat gets its own random third of the items to see.
 func _choose_visible(locker: Locker, rng: RandomNumberGenerator) -> void:
 	var count := clampi(roundi(locker.items.size() * catalog.economy.auction.visible_share), 1, locker.items.size())
-	var order: Array[int] = []
-	for i in locker.items.size():
-		order.append(i)
-	# Fisher-Yates with the loot stream, never Array.shuffle().
-	for i in range(order.size() - 1, 0, -1):
-		var j := rng.randi_range(0, i)
-		var swap := order[i]
-		order[i] = order[j]
-		order[j] = swap
-	for i in count:
-		locker.visible_uids.append(locker.items[order[i]].uid)
+	for seat in Crew.MAX:
+		var order: Array[int] = []
+		for i in locker.items.size():
+			order.append(i)
+		# Fisher-Yates with the loot stream, never Array.shuffle().
+		for i in range(order.size() - 1, 0, -1):
+			var j := rng.randi_range(0, i)
+			var swap := order[i]
+			order[i] = order[j]
+			order[j] = swap
+		var seen := PackedInt32Array()
+		for i in count:
+			seen.append(locker.items[order[i]].uid)
+		locker.visible_sets.append(seen)
 
 
 func _opening_price(locker: Locker, zone: ZoneDef, rng: RandomNumberGenerator) -> int:

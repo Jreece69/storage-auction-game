@@ -4,6 +4,8 @@ extends Node
 ## EventBus. Scenes reach the run through here; systems never do.
 
 var controller: RunController = null
+## Which crew member this machine plays. Solo play is always p1, the host.
+var local_member: StringName = Crew.HOST
 
 var cash: int:
 	get:
@@ -16,6 +18,11 @@ var day: int:
 
 func has_run() -> bool:
 	return controller != null
+
+
+## This machine's crew seat: 0 for p1, the host.
+func local_seat() -> int:
+	return Crew.seat_of(local_member)
 
 
 ## Starts a fresh run. [param run_seed] drives every random roll in it.

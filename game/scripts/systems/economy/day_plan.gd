@@ -10,7 +10,7 @@ var phase: Phase = Phase.MORNING
 var lockers: Array[Locker] = []
 var roster: RivalRoster
 var ledger: DayLedger
-## Lot number → who won it: Auction.PLAYER, a rival id, or Auction.NOBODY.
+## Lot number → who won it: a crew member, a rival id, or Auction.NOBODY.
 var results: Dictionary[int, StringName] = {}
 var customers_left: int = 0
 
