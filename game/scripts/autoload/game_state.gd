@@ -1,32 +1,49 @@
 extends Node
-## The current run: money, day and progress. Phase 1 adds inventory, zones and
-## net worth; for now it holds just enough to start, save and load a game.
-##
-## Money is whole dollars stored as int. Tuning numbers such as starting cash
-## belong in game/data, so callers pass them in rather than this file
-## hard-coding them.
+## The game in progress. Holds the RunController for the running game (the
+## rules live there and in the other systems) and forwards its signals to
+## EventBus. Scenes reach the run through here; systems never do.
 
-var cash: int = 0
-var day: int = 0
+var controller: RunController = null
+
+var cash: int:
+	get:
+		return controller.run.cash if controller != null else 0
+
+var day: int:
+	get:
+		return controller.run.day if controller != null else 0
+
+
+func has_run() -> bool:
+	return controller != null
 
 
 ## Starts a fresh run. [param run_seed] drives every random roll in it.
-func new_game(run_seed: int, starting_cash: int) -> void:
+func new_game(run_seed: int) -> void:
 	Rng.reseed(run_seed)
-	day = 1
-	set_cash(starting_cash)
-	EventBus.day_started.emit(day)
+	_attach(RunController.new_run(Content.catalog, Rng.streams))
 
 
-func set_cash(value: int) -> void:
-	cash = value
-	EventBus.cash_changed.emit(cash)
+## Resumes a run from [method snapshot], at the start of its day.
+func load_snapshot(snapshot_data: Dictionary) -> void:
+	_attach(RunController.from_snapshot(Content.catalog, Rng.streams, snapshot_data))
 
 
-func to_dict() -> Dictionary:
-	return {"cash": cash, "day": day}
+## What a save holds: the run and the random streams at the start of today.
+func snapshot() -> Dictionary:
+	return controller.day_start_snapshot if controller != null else {}
 
 
-func from_dict(data: Dictionary) -> void:
-	day = JsonValue.as_int(data.get("day", 0))
-	set_cash(JsonValue.as_int(data.get("cash", 0)))
+## Drops the run in progress, for quitting to the title screen.
+func end_run() -> void:
+	controller = null
+
+
+func _attach(new_controller: RunController) -> void:
+	controller = new_controller
+	controller.cash_changed.connect(EventBus.cash_changed.emit)
+	controller.day_started.connect(EventBus.day_started.emit)
+	controller.locker_settled.connect(EventBus.locker_settled.emit)
+	controller.item_sold.connect(EventBus.item_sold.emit)
+	controller.day_ended.connect(EventBus.day_ended.emit)
+	EventBus.cash_changed.emit(controller.run.cash)

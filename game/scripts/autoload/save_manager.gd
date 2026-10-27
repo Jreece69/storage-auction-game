@@ -2,23 +2,32 @@ extends Node
 ## Save games: one JSON file per slot in user://saves/. Steam Auto-Cloud will
 ## sync that folder (Phase 3).
 ##
+## A save holds the run as it stood at the start of the current day, plus the
+## random streams, so loading always resumes at the start of a day and the
+## day plays out the same way.
+##
 ## Every file carries a version number. When the save format changes, bump
 ## SAVE_VERSION and add a step to [method _migrate_step] so old saves still
 ## load.
 
-const SAVE_VERSION: int = 1
+const SAVE_VERSION: int = 2
 const SAVE_DIR: String = "user://saves/"
+## The slot the game saves to at the start of each day.
+const AUTOSAVE: String = "autosave"
 
 
-## Writes the whole game to [param slot].
+## Writes the run in progress to [param slot].
 func save_game(slot: String) -> Error:
-	var err := write_slot(slot, {"game_state": GameState.to_dict(), "rng": Rng.to_dict()})
+	if not GameState.has_run():
+		return ERR_UNCONFIGURED
+	var snapshot := GameState.snapshot()
+	var err := write_slot(slot, {"run": snapshot["run"], "rng": snapshot["rng"]})
 	if err == OK:
 		EventBus.game_saved.emit(slot)
 	return err
 
 
-## Reads [param slot] and applies it to the game.
+## Reads [param slot] and resumes it.
 ## Returns ERR_FILE_NOT_FOUND for an empty slot and ERR_PARSE_ERROR for a
 ## file that can't be read.
 func load_game(slot: String) -> Error:
@@ -27,10 +36,9 @@ func load_game(slot: String) -> Error:
 	var data := read_slot(slot)
 	if data.is_empty():
 		return ERR_PARSE_ERROR
-	var game_state: Dictionary = data.get("game_state", {})
+	var run: Dictionary = data.get("run", {})
 	var rng: Dictionary = data.get("rng", {})
-	GameState.from_dict(game_state)
-	Rng.from_dict(rng)
+	GameState.load_snapshot({"run": run, "rng": rng})
 	EventBus.game_loaded.emit(slot)
 	return OK
 
@@ -89,7 +97,7 @@ func read_slot(slot: String) -> Dictionary:
 
 ## Brings a save from any older version up to SAVE_VERSION, one step at a time.
 func migrate(data: Dictionary) -> Dictionary:
-	var version := JsonValue.as_int(data.get("version", 0))
+	var version := JsonValue.as_int(data.get("version", 1))
 	if version > SAVE_VERSION:
 		push_error("Save is version %d but this build reads up to %d." % [version, SAVE_VERSION])
 		return {}
@@ -102,7 +110,11 @@ func migrate(data: Dictionary) -> Dictionary:
 
 
 ## Upgrades a save from [param from_version] to the next version.
-## Version 1 is the first format, so there are no steps yet. Add them as
-## [code]if from_version == 1: ...[/code] when version 2 arrives.
-func _migrate_step(_from_version: int, data: Dictionary) -> Dictionary:
+func _migrate_step(from_version: int, data: Dictionary) -> Dictionary:
+	if from_version == 1:
+		# Version 1 (Phase 0) kept only the day and cash, under "game_state".
+		# Everything else starts fresh, as RunState fills in missing fields.
+		var old: Dictionary = data.get("game_state", {})
+		data["run"] = {"day": old.get("day", 1), "cash": old.get("cash", 0)}
+		data.erase("game_state")
 	return data

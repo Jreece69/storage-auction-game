@@ -50,7 +50,7 @@ static func data() -> Dictionary:
 			"starting_vehicle": "van",
 			"starting_zone": "yard",
 			"rent": {"amount": 100, "every_days": 7},
-			"scrap": {"per_pound": 0.1, "job_pay": 50},
+			"scrap": {"per_pound": 0.1, "job_pay": 50, "job_when_cash_below": 100},
 			"conditions": {
 				"order": ["broken", "worn", "good", "mint"],
 				"multipliers": {"broken": 0.25, "worn": 0.5, "good": 1.0, "mint": 2.0},

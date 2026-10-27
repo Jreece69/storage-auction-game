@@ -3,7 +3,7 @@
   "starting_vehicle": "hatchback",
   "starting_zone": "rusty_row",
   "rent": {"amount": 150, "every_days": 7},
-  "scrap": {"per_pound": 0.1, "job_pay": 75},
+  "scrap": {"per_pound": 0.1, "job_pay": 75, "job_when_cash_below": 100},
   "conditions": {
     "order": ["broken", "worn", "good", "mint"],
     "multipliers": {"broken": 0.35, "worn": 0.7, "good": 1.0, "mint": 1.4},

@@ -14,6 +14,16 @@ signal day_started(day: int)
 ## The player's cash changed. [param cash] is the new balance in whole dollars.
 signal cash_changed(cash: int)
 
+## A locker's auction ended. [param winner] is "player", a rival id, or empty
+## if it went unsold.
+signal locker_settled(lot_number: int, winner: StringName, price: int)
+
+## An item left the shop with a customer.
+signal item_sold(uid: int, price: int)
+
+## The day closed. [param summary] holds the end-of-day numbers.
+signal day_ended(summary: Dictionary)
+
 ## A save slot was written to disk.
 signal game_saved(slot: String)
 

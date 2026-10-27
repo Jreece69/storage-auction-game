@@ -12,6 +12,8 @@ extends Resource
 @export var scrap_per_pound: float
 ## What a scrap job pays a player who can't afford to bid.
 @export var scrap_job_pay: int
+## The scrap job is offered when cash is under this.
+@export var scrap_job_below: int
 ## Worst to best.
 @export var condition_order: Array[StringName] = []
 @export var condition_multipliers: Dictionary[StringName, float] = {}
@@ -44,6 +46,7 @@ static func from_dict(data: Dictionary) -> EconomyDef:
 	var scrap: Dictionary = data["scrap"]
 	def.scrap_per_pound = JsonValue.as_float(scrap["per_pound"])
 	def.scrap_job_pay = JsonValue.as_int(scrap["job_pay"])
+	def.scrap_job_below = JsonValue.as_int(scrap["job_when_cash_below"])
 	var conditions: Dictionary = data["conditions"]
 	def.condition_order = JsonValue.as_names(conditions["order"])
 	def.condition_multipliers = JsonValue.as_weights(conditions["multipliers"])

@@ -20,10 +20,15 @@
     "scrap": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["per_pound", "job_pay"],
+      "required": ["per_pound", "job_pay", "job_when_cash_below"],
       "properties": {
         "per_pound": {"type": "number", "minimum": 0},
-        "job_pay": {"type": "integer", "minimum": 0}
+        "job_pay": {"type": "integer", "minimum": 0},
+        "job_when_cash_below": {
+          "description": "The scrap job is offered when cash is under this, so a broke player always has a way back",
+          "type": "integer",
+          "minimum": 0
+        }
       }
     },
     "conditions": {
