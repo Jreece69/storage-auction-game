@@ -59,3 +59,16 @@ Jack" (see `DESIGN.md`) is never decided here; it is asked.
 - **The collector's bias scales with the share of the locker's value in their category.** A single toy in a garage locker shouldn't make them go wild.
 - **Items keep unique ids for the whole save (`UidCounter`).** Haul, shelves, sales and the ledger can all refer to one item safely.
 - **Unit tests use small fixed test content (`tests/helpers/fixture.gd`), not the real data.** Rebalancing the real numbers never breaks a test; separate tests check the real data loads and rolls sensibly.
+
+### Haul, shop, customers and the day loop (branch `phase-1/day-loop`)
+
+- **The game saves at the start of each day.** A save is the run and the random streams as the day began, so loading replays the same lockers; progress inside a day isn't saved. Simple, and nothing can be save-scummed mid-auction.
+- **`RunController` runs the day as plain code; the `GameState` autoload holds it and forwards its signals to `EventBus`.** The balance sim drives the same controller with no scenes at all.
+- **A locker the player skips is still auctioned, among the rivals.** Their budgets drain the same way whether or not the player bids, so "let the rookie overpay, then snipe the next one" works.
+- **Leftovers that don't fit the vehicle are scrapped by weight, along with the junk.** The plan's alternative, a second trip that costs time, waits for Phase 2's day clock.
+- **The scrap job is offered only before any bidding, when cash is under $100 (in data).** It's the plan's "never a game over" safety net, not a farm.
+- **Cash can go negative (rent can push it under); bidding just isn't possible until it recovers.** No game over, as the plan requires; loans come later.
+- **Customers arrive one at a time and pick from what's on the shelves right then.** Two customers can never buy the same item.
+- **A customer has a hidden limit; any counter within it is accepted, and each counter above it moves their offer halfway to the limit.** Two failed counters and the third sends them away (patience 2, in data). Plays like haggling without being guessable.
+- **"Best find" counts everything in a won locker, even items left behind.** It's about what you found, not what fit in the car.
+- **Save format version 2 (the whole run); version 1 saves migrate.** The first real use of the migration step, tested.
