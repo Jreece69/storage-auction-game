@@ -18,7 +18,7 @@ steps to a minimum, and decide everything that isn't reserved for him.
 
 | Phase | State |
 |---|---|
-| 0 Setup | Built 2026-10-27. Tests, boot check and Windows export pass locally; CI must go green on `main` to close it |
+| 0 Setup | **Done 2026-10-27.** CI green on `main` (25 tests, boot check, Windows export); boots to the title screen |
 | 1 Core loop prototype (graybox) | **Next** |
 | 2 Vertical slice | Not started. Jack starts the Steamworks signup during this phase |
 | 3 Steam setup and demo | Not started |
